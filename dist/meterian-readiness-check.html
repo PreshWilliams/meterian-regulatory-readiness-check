@@ -1,0 +1,1529 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Meterian Regulatory Readiness Check</title>
+<meta name="description" content="A free six-minute self-assessment of software supply-chain risk against ISO/IEC 27001, ISO/IEC 42001, the NCSC Cyber Assessment Framework (CAF) v4.0, the EU Cyber Resilience Act (CRA) and the UK Software Security Code of Practice. Built by Meterian for CISOs, General Counsel and compliance leads.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Overpass:wght@600;700;800&family=Lato:wght@400;700;900&family=Quicksand:wght@700&display=swap">
+<style>
+/* Layout: one working column of question cards (max 760px) beside a sticky
+   Risk Profile rail that updates as answers land. On narrow screens the rail
+   stacks under the questions and a slim fixed status bar sits at the bottom.
+   A separate Report view is print-ready for Save as PDF.
+   Accessibility (WCAG 2.2 AA): every text token is >= 4.5:1 on its surface,
+   every control border and status colour >= 3:1, nothing is conveyed by
+   colour alone, native radios and checkboxes carry the questions, focus is
+   visible and never obscured, targets are >= 24px. */
+:root {
+  --bg: #F3F6FB;
+  --surface: #FFFFFF;
+  --surface-2: #EAF0F9;
+  --line: #D5DDE9;          /* decorative dividers only */
+  --control: #6B7B92;       /* borders of form controls: 4.3:1 on white */
+  --ink: #2F2F31;           /* brand charcoal: 13.4:1 */
+  --ink-2: #566070;         /* 6.4:1 */
+  --ink-3: #5B6778;         /* 5.7:1 (small labels) */
+  --brand: #2883F8;         /* brand blue: wordmark, tints, borders (large text only) */
+  --accent: #073AC9;        /* brand deep blue: text links, filled buttons: 8.5:1 with white */
+  --accent-on: #FFFFFF;
+  --accent-deep: #263E7E;   /* brand navy: profile header */
+  --accent-tint: #E3EFFF;
+  --low: #178F7A;           /* status colours: all >= 3:1 on white, always labelled */
+  --medium: #A37100;
+  --high: #D14A1E;
+  --critical: #BC003F;      /* brand crimson */
+  --focus: #0D4AFB;
+  --shadow: 0 1px 2px rgba(38,62,126,.06), 0 8px 24px rgba(38,62,126,.08);
+  --font-display: "Overpass", "Segoe UI", Arial, sans-serif;
+  --font-body: "Lato", "Helvetica Neue", Arial, sans-serif;
+  --font-logo: "Quicksand", "Nunito", "Segoe UI", sans-serif;
+  --minibar: 88px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #14181F; --surface: #1C222B; --surface-2: #232B37; --line: #303A48; --control: #6E7D93;
+    --ink: #E9EDF3; --ink-2: #B0B9C6; --ink-3: #99A4B3;
+    --brand: #5AA3FF; --accent: #8FC0FF; --accent-on: #14181F; --accent-deep: #22365F; --accent-tint: #1C2E4A;
+    --low: #1FA68C; --medium: #C98A12; --high: #E8622A; --critical: #E0306A; --focus: #FFD166;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #14181F; --surface: #1C222B; --surface-2: #232B37; --line: #303A48; --control: #6E7D93;
+  --ink: #E9EDF3; --ink-2: #B0B9C6; --ink-3: #99A4B3;
+  --brand: #5AA3FF; --accent: #8FC0FF; --accent-on: #14181F; --accent-deep: #22365F; --accent-tint: #1C2E4A;
+  --low: #1FA68C; --medium: #C98A12; --high: #E8622A; --critical: #E0306A; --focus: #FFD166;
+  --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { scroll-padding-top: 16px; scroll-padding-bottom: calc(var(--minibar) + 16px); }
+html, body { background: var(--bg); color: var(--ink); }
+body { margin: 0; font-family: var(--font-body); font-size: 16px; line-height: 1.55; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+.wrap { max-width: 1180px; margin: 0 auto; padding-block: 20px calc(var(--minibar) + 32px);
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+@media (min-width: 1024px) { .wrap { padding-bottom: 60px; } }
+h1, h2, h3, h4 { font-family: var(--font-display); color: var(--ink); margin: 0; line-height: 1.15; text-wrap: balance; }
+h1 { font-size: clamp(26px, 3.4vw, 36px); font-weight: 800; letter-spacing: -.01em; }
+h2 { font-size: 21px; font-weight: 700; }
+h3 { font-size: 17px; font-weight: 700; }
+p { margin: 0; }
+a { color: var(--accent); }
+button { font-family: inherit; font-size: inherit; cursor: pointer; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.opt:has(input:focus-visible), .chip:has(input:focus-visible) { outline: 3px solid var(--focus); outline-offset: 2px; }
+@supports not selector(:has(a)) { .opt:focus-within, .chip:focus-within { outline: 3px solid var(--focus); outline-offset: 2px; } }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+.skip { position: absolute; left: 16px; top: -100px; z-index: 30; background: var(--accent); color: var(--accent-on); padding: 10px 14px; border-radius: 8px; font-weight: 700; text-decoration: none; }
+.skip:focus { top: calc(env(safe-area-inset-top, 0px) + 12px); }
+.num { font-variant-numeric: tabular-nums; }
+.eyebrow { font-size: 12px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: var(--ink-3); }
+.muted { color: var(--ink-2); }
+.small { font-size: 14px; }
+fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
+legend { padding: 0; }
+
+/* Header */
+.brand { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.wordmark { display: flex; flex-direction: column; gap: 2px; text-decoration: none; border-radius: 6px; }
+.wordmark .m { font-family: var(--font-logo); font-weight: 700; font-size: 30px; color: var(--brand); letter-spacing: -.02em; line-height: 1; }
+.wordmark .tag { font-size: 13px; color: var(--ink-3); letter-spacing: .01em; }
+.wordmark .tag b { color: var(--ink); font-weight: 900; }
+.badge-free { font-size: 13px; color: var(--ink-2); border: 1px solid var(--control); border-radius: 999px; padding: 4px 10px; }
+.hero { margin-top: 28px; display: grid; gap: 14px; max-width: 820px; }
+.hero p.lead { font-size: 17.5px; color: var(--ink-2); max-width: 66ch; }
+.steps { display: flex; gap: 10px 18px; flex-wrap: wrap; margin-top: 4px; padding: 0; list-style: none; }
+.step { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--ink-2); }
+.step i { font-style: normal; font-family: var(--font-display); font-weight: 700; width: 24px; height: 24px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: var(--accent-tint); color: var(--accent); font-size: 12px; }
+
+/* Main grid */
+.grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 24px; margin-top: 28px; }
+@media (min-width: 1024px) { .grid { grid-template-columns: minmax(0, 1fr) 340px; align-items: start; } }
+.col { min-width: 0; display: grid; gap: 28px; }
+.rail { min-width: 0; }
+@media (min-width: 1024px) { .rail { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); } }
+
+/* Sections */
+.section { display: grid; gap: 14px; }
+.section-head { display: grid; gap: 6px; padding-bottom: 6px; border-bottom: 2px solid var(--line); }
+.section-head .row { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.section-head .count { font-size: 14px; color: var(--ink-3); }
+.section-head .blurb { color: var(--ink-2); max-width: 70ch; }
+
+/* Cards */
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 18px; box-shadow: var(--shadow); min-width: 0; }
+.card-top { display: flex; align-items: flex-start; gap: 12px; }
+.code { font-family: var(--font-display); font-weight: 700; font-size: 12.5px; letter-spacing: .04em; color: var(--accent); background: var(--accent-tint); border-radius: 6px; padding: 4px 7px; line-height: 1; flex: none; margin-top: 2px; }
+.weight { margin-left: auto; font-size: 13px; color: var(--ink-3); white-space: nowrap; }
+.card .q { margin-top: 10px; color: var(--ink); font-weight: 700; }
+.options { display: grid; gap: 8px; margin-top: 12px; }
+.opt { display: flex; align-items: flex-start; gap: 12px; position: relative; width: 100%; background: var(--surface); border: 1px solid var(--control); border-radius: 10px; padding: 12px; color: var(--ink); line-height: 1.4; cursor: pointer; transition: border-color .15s, background .15s; }
+.opt:hover { background: var(--surface-2); }
+.opt:has(input:checked) { border-color: var(--accent); border-width: 2px; padding: 11px; background: var(--accent-tint); }
+.opt .radio { flex: none; width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--control); margin-top: 1px; background: var(--surface); display: inline-flex; align-items: center; justify-content: center; }
+.opt .radio::after { content: ""; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); opacity: 0; }
+.opt:has(input:checked) .radio { border-color: var(--accent); }
+.opt:has(input:checked) .radio::after { opacity: 1; }
+.opt .lvl { flex: none; width: 60px; font-size: 11.5px; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; color: var(--ink-3); margin-top: 3px; display: inline-flex; align-items: center; gap: 5px; }
+.opt .lvl::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--c); flex: none; }
+.opt .txt { flex: 1; min-width: 0; }
+.opt:has(input:checked) .lvl { color: var(--accent); }
+@media (max-width: 480px) { .opt { flex-wrap: wrap; } .opt .lvl { order: 3; width: auto; margin-left: 32px; margin-top: -2px; } .opt .txt { flex-basis: calc(100% - 32px); } }
+.more { display: grid; gap: 8px; margin-top: 12px; }
+details.why { border-top: 1px dashed var(--line); padding-top: 8px; }
+details.why summary { cursor: pointer; font-size: 14px; font-weight: 700; color: var(--accent); list-style: none; display: inline-flex; align-items: center; gap: 6px; min-height: 24px; padding: 2px 4px 2px 0; border-radius: 6px; }
+details.why summary::-webkit-details-marker { display: none; }
+details.why summary::before { content: "+"; font-family: var(--font-display); width: 18px; height: 18px; border-radius: 4px; display: inline-flex; align-items: center; justify-content: center; background: var(--accent-tint); font-size: 14px; }
+details.why[open] summary::before { content: "–"; }
+details.why .body { margin-top: 8px; font-size: 14.5px; color: var(--ink-2); display: grid; gap: 6px; max-width: 70ch; }
+
+/* Setup */
+.chips { display: flex; gap: 8px; flex-wrap: wrap; }
+.chip { position: relative; border: 1px solid var(--control); background: var(--surface); color: var(--ink); border-radius: 999px; padding: 9px 14px; font-weight: 700; font-size: 14px; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; transition: all .15s; min-height: 36px; }
+.chip:hover { border-color: var(--accent); }
+.chip:has(input:checked) { background: var(--accent); border-color: var(--accent); color: var(--accent-on); }
+.chip .tick { width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid currentColor; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; line-height: 1; flex: none; }
+.chip .tick::after { content: ""; }
+.chip:has(input:checked) .tick::after { content: "✓"; }
+.chip .sub { font-weight: 400; font-size: 12.5px; opacity: .9; }
+.field { display: grid; gap: 6px; }
+.field > label, .field > legend { font-size: 14px; font-weight: 700; color: var(--ink-2); }
+.field input[type="text"] { font: inherit; padding: 10px 12px; border: 1px solid var(--control); border-radius: 8px; background: var(--surface); color: var(--ink); width: 100%; max-width: 420px; min-height: 44px; }
+.setup-grid { display: grid; gap: 18px; }
+.nudge { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; background: var(--accent-tint); border: 1px solid color-mix(in srgb, var(--brand) 40%, var(--line)); border-radius: 10px; padding: 10px 12px; font-size: 14.5px; }
+.nudge span { flex: 1 1 260px; min-width: 0; }
+.btn { border: none; background: var(--accent); color: var(--accent-on); border-radius: 8px; padding: 9px 14px; font-weight: 700; font-size: 14px; min-height: 36px; }
+.btn.secondary { background: var(--surface); color: var(--accent); border: 1px solid var(--accent); }
+.note { font-size: 13.5px; color: var(--ink-3); max-width: 70ch; }
+.fullnames { font-size: 13.5px; color: var(--ink-2); display: grid; gap: 2px; margin: 0; padding: 0; list-style: none; }
+.fullnames b { color: var(--ink); }
+
+/* Rail */
+.rail .card { display: grid; gap: 14px; }
+.score-top { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.score { font-family: var(--font-display); font-weight: 800; font-size: 60px; line-height: .95; letter-spacing: -.02em; color: var(--ink); }
+.score small { font-size: 16px; font-weight: 700; color: var(--ink-3); margin-left: 4px; letter-spacing: 0; }
+.score.empty { color: var(--ink-3); }
+.band { display: inline-flex; align-items: center; gap: 7px; font-weight: 900; font-size: 13px; letter-spacing: .04em; text-transform: uppercase; padding: 6px 11px; border-radius: 999px; color: var(--ink); background: color-mix(in srgb, var(--c, var(--line)) 16%, var(--surface)); border: 1px solid var(--c, var(--control)); }
+.band::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--c, var(--control)); }
+.band.sm { font-size: 11.5px; padding: 3px 8px; }
+.provisional { font-size: 13px; color: var(--ink-3); }
+.scale { position: relative; height: 10px; border-radius: 5px; overflow: hidden; display: grid; grid-template-columns: 26fr 25fr 25fr 25fr; gap: 2px; background: var(--surface); }
+.scale span { display: block; height: 100%; }
+.scale-wrap { position: relative; padding-top: 14px; }
+.marker { position: absolute; top: 0; width: 2px; height: 24px; background: var(--ink); transform: translateX(-1px); border-radius: 1px; }
+.marker::after { content: ""; position: absolute; top: -1px; left: 50%; width: 10px; height: 10px; background: var(--ink); border: 2px solid var(--surface); border-radius: 50%; transform: translate(-50%, -50%); }
+.scale-labels { display: grid; grid-template-columns: repeat(4, 1fr); font-size: 11px; color: var(--ink-3); margin-top: 4px; letter-spacing: .04em; text-transform: uppercase; font-weight: 700; }
+.scale-labels span:nth-child(2), .scale-labels span:nth-child(3) { text-align: center; } .scale-labels span:last-child { text-align: right; }
+.sub { display: grid; gap: 6px; }
+.sub .row { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; font-size: 14px; }
+.sub .row b { font-family: var(--font-display); font-size: 16px; }
+.bar { height: 6px; border-radius: 3px; background: var(--surface-2); overflow: hidden; }
+.bar i { display: block; height: 100%; border-radius: 3px; background: var(--c, var(--accent)); transition: width .25s; }
+.progress { display: grid; gap: 6px; }
+.progress .row { display: flex; justify-content: space-between; font-size: 13.5px; color: var(--ink-2); }
+.note-box { font-size: 14px; border-radius: 8px; padding: 10px 12px; background: var(--surface-2); border-left: 4px solid var(--c, var(--accent)); color: var(--ink-2); }
+.gaps-mini { display: grid; gap: 6px; }
+.gaps-mini .g { display: flex; align-items: center; gap: 8px; font-size: 14px; flex-wrap: wrap; }
+.gaps-mini .g .code { font-size: 11.5px; padding: 3px 6px; margin: 0; }
+.gaps-mini .g .n { flex: 1; min-width: 120px; }
+.cta { border: none; background: var(--accent); color: var(--accent-on); font-weight: 900; font-size: 16px; padding: 13px 16px; border-radius: 10px; width: 100%; min-height: 48px; transition: filter .15s; }
+.cta:hover { filter: brightness(1.12); }
+.cta[disabled] { background: var(--surface-2); color: var(--ink-2); border: 1px solid var(--control); cursor: not-allowed; }
+.cta-sub { font-size: 13px; color: var(--ink-3); text-align: center; }
+
+/* Mobile status bar */
+.minibar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; background: var(--surface); border-top: 1px solid var(--line); box-shadow: 0 -6px 20px rgba(0,0,0,.08);
+  padding-top: 10px; padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.minibar .s { font-family: var(--font-display); font-weight: 800; font-size: 22px; }
+.minibar .s small { font-size: 13px; color: var(--ink-3); font-weight: 700; margin-left: 4px; }
+.minibar button { min-height: 40px; }
+@media (min-width: 1024px) { .minibar { display: none; } }
+
+/* Profile section */
+.profile { display: grid; gap: 22px; scroll-margin-top: 24px; }
+.profile-head { display: grid; gap: 12px; background: var(--accent-deep); color: #fff; border-radius: 14px; padding: 22px; }
+.profile-head h2, .profile-head .eyebrow { color: #fff; }
+.profile-head .eyebrow { color: #C7D7F5; }
+.profile-head .summary { display: flex; flex-wrap: wrap; gap: 18px; align-items: center; }
+.profile-head .big { font-family: var(--font-display); font-weight: 800; font-size: 48px; line-height: 1; }
+.profile-head .big small { font-size: 14px; color: #C7D7F5; margin-left: 4px; font-weight: 700; }
+.profile-head .band { color: #2F2F31; background: #FFFFFF; border-color: #FFFFFF; }
+.profile-head p { color: #DCE6F8; max-width: 72ch; }
+.profile-head .sel { display: flex; flex-wrap: wrap; gap: 6px; padding: 0; margin: 0; list-style: none; }
+.profile-head .sel li { font-size: 12.5px; border: 1px solid rgba(255,255,255,.55); border-radius: 999px; padding: 3px 9px; color: #fff; }
+.profile-head .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
+.profile-head .btn { background: #fff; color: #263E7E; }
+.profile-head .btn.secondary { background: transparent; color: #fff; border-color: rgba(255,255,255,.7); }
+.flags, .gaps { display: grid; gap: 10px; }
+.flag { display: grid; gap: 8px; }
+.flag .t { display: flex; align-items: flex-start; gap: 10px; flex-wrap: wrap; }
+.flag .t h3 { flex: 1; min-width: 0; }
+.date { font-size: 12px; font-weight: 700; letter-spacing: .04em; color: var(--accent); background: var(--accent-tint); border-radius: 6px; padding: 4px 7px; white-space: nowrap; font-family: var(--font-display); }
+.date.live { color: #fff; background: var(--critical); }
+.status { display: flex; flex-wrap: wrap; gap: 6px; padding: 0; margin: 0; list-style: none; }
+.status li { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; border: 1px solid var(--line); border-radius: 999px; padding: 3px 9px; color: var(--ink-2); }
+.status li::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--c, var(--control)); }
+.gap { display: grid; gap: 10px; border-left: 5px solid var(--c); }
+.gap .t { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.gap .t h3 { flex: 1; min-width: 0; }
+.gap .ans { font-size: 14px; color: var(--ink-2); }
+.gap .ans b { color: var(--ink); }
+.two { display: grid; gap: 12px; }
+@media (min-width: 760px) { .two { grid-template-columns: 1fr 1fr; } }
+.box { background: var(--surface-2); border-radius: 10px; padding: 12px 14px; font-size: 14.5px; display: grid; gap: 6px; min-width: 0; align-content: start; }
+.box .eyebrow { font-size: 11px; }
+.box.mt { background: color-mix(in srgb, var(--brand) 10%, var(--surface)); border: 1px solid color-mix(in srgb, var(--brand) 30%, var(--surface)); }
+.pills { display: flex; flex-wrap: wrap; gap: 5px; padding: 0; margin: 0; list-style: none; }
+.pills li { font-size: 12px; font-weight: 700; color: var(--accent); background: var(--surface); border: 1px solid color-mix(in srgb, var(--brand) 35%, var(--surface)); border-radius: 999px; padding: 2px 8px; }
+details.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px 18px; }
+details.panel summary { cursor: pointer; font-family: var(--font-display); font-weight: 700; font-size: 16px; min-height: 24px; }
+details.panel .body { margin-top: 10px; display: grid; gap: 10px; color: var(--ink-2); font-size: 14.5px; max-width: 80ch; }
+.empty { color: var(--ink-2); font-size: 14.5px; }
+footer { margin-top: 40px; font-size: 13.5px; color: var(--ink-3); display: grid; gap: 6px; max-width: 80ch; }
+
+/* Report view */
+.report { max-width: 820px; margin: 0 auto; display: grid; gap: 24px; }
+.report-bar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; justify-content: space-between; }
+.report-bar .l { display: flex; gap: 10px; flex-wrap: wrap; }
+.report-paper { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: clamp(18px, 4vw, 40px); display: grid; gap: 28px; box-shadow: var(--shadow); }
+.r-head { display: grid; gap: 8px; border-bottom: 3px solid var(--brand); padding-bottom: 16px; }
+.r-head .meta { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 14px; color: var(--ink-2); }
+.r-section { display: grid; gap: 12px; break-inside: avoid-column; }
+.r-section h2 { font-size: 18px; border-left: 4px solid var(--brand); padding-left: 10px; }
+.r-scores { display: grid; gap: 12px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+@media (max-width: 560px) { .r-scores { grid-template-columns: 1fr; } }
+.r-score { background: var(--surface-2); border-radius: 10px; padding: 12px 14px; display: grid; gap: 4px; }
+.r-score .v { font-family: var(--font-display); font-weight: 800; font-size: 34px; line-height: 1; }
+.r-score .v small { font-size: 13px; color: var(--ink-3); margin-left: 3px; }
+.r-list { margin: 0; padding-left: 20px; display: grid; gap: 8px; }
+.r-list li { break-inside: avoid; }
+.r-item { display: grid; gap: 6px; padding: 10px 0; border-bottom: 1px solid var(--line); break-inside: avoid; }
+.r-item .t { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.r-item .t h3 { flex: 1; min-width: 0; font-size: 15.5px; }
+.r-item p { font-size: 14.5px; color: var(--ink-2); }
+.r-item p b { color: var(--ink); }
+.r-item .mt { border-left: 3px solid var(--brand); padding-left: 10px; }
+.r-foot { font-size: 13px; color: var(--ink-3); display: grid; gap: 6px; border-top: 1px solid var(--line); padding-top: 14px; }
+.print-help { font-size: 13.5px; color: var(--ink-3); }
+@media print {
+  @page { margin: 16mm; }
+  html, body { background: #fff !important; color: #111 !important; }
+  body::before, .skip, .report-bar, .minibar, .no-print { display: none !important; }
+  .wrap { padding: 0 !important; max-width: none; }
+  .report-paper { border: none; box-shadow: none; padding: 0; }
+  .r-section, .r-item, .r-score { break-inside: avoid; }
+  a { color: inherit; text-decoration: none; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to the assessment</a>
+<div id="root"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.24.7/babel.min.js"></script>
+<script>
+/* ============================================================================
+   Regulatory Mapping Lead Capture Tool — DATA MODEL
+   SoW PWMTR-001 · D1 v0.1 (18 Oct 2026)
+
+   This file is the single place Meterian edits to change the tool without
+   touching the interface: question wording, answer options, weights, the
+   framework mapping, obligation flags and the "How Meterian helps" lines.
+
+   Rules of the model (see D1 note, section 7):
+   - Every option carries 0-3 risk points. 0 = least risk.
+   - weight: 3 = determines legal exposure or is a foundational control;
+             2 = material; 1 = contextual amplifier.
+   - Framework / regulation selection changes mapping, wording and flags,
+     never the score.
+
+   Runs unchanged in the browser (plain script -> window.RMLC_MODEL) and in
+   Node (module.exports) so the scoring can be unit-tested.
+============================================================================ */
+
+const RMLC_MODEL = (function () {
+  "use strict";
+
+  const VERSION = "0.2.0";
+  const UPDATED = "2026-10-20";
+  const MAX_POINTS = 3;
+
+  /* ---------------------------------------------------------------------
+     Per-answer levels (0-3 points) and overall bands (0-100 score)
+  --------------------------------------------------------------------- */
+  const LEVELS = {
+    0: { id: "low", label: "Low" },
+    1: { id: "medium", label: "Medium" },
+    2: { id: "high", label: "High" },
+    3: { id: "critical", label: "Critical" },
+  };
+
+  const BANDS = [
+    { id: "low", label: "Low", min: 0, max: 25, rank: 0,
+      guidance: "Maintain current controls and reassess on any material change to products, suppliers or regulation." },
+    { id: "medium", label: "Medium", min: 26, max: 50, rank: 1,
+      guidance: "Material exposure that is managed, or moderate exposure with gaps. Close the listed gaps and make sure the evidence exists." },
+    { id: "high", label: "High", min: 51, max: 75, rank: 2,
+      guidance: "Requires senior review and a remediation plan with dates. Prioritise the foundational controls first." },
+    { id: "critical", label: "Critical", min: 76, max: 100, rank: 3,
+      guidance: "Executive escalation. Foundational controls are missing against significant exposure; treat as a programme, not a ticket." },
+  ];
+
+  /* Override: a weighted average can hide a missing control behind good
+     answers elsewhere. Any one Controls dimension at its weakest level floors
+     the rating at High; two or more force Critical. Applies only when
+     Exposure is above the Low band - if nothing is at stake, a missing control
+     is a gap to record, not an emergency. Exposure answers never trigger it. */
+  const OVERRIDE = {
+    group: "controls",
+    tripwirePoints: MAX_POINTS,
+    minExposureScore: 26,
+    singleFloor: "high",
+    multiForce: "critical",
+  };
+
+  /* ---------------------------------------------------------------------
+     Selectable frameworks, overlays and regulations
+  --------------------------------------------------------------------- */
+  /* short: used after the full name has appeared once on the page.
+     full:  the name as it should appear on first use (and for search). */
+  const FRAMEWORKS = {
+    iso27001: { short: "ISO 27001", full: "ISO/IEC 27001:2022 Information Security Management", kind: "framework",
+      note: "The international standard for an information security management system. Annex A controls cited unless marked cl." },
+    iso42001: { short: "ISO 42001", full: "ISO/IEC 42001:2023 Artificial Intelligence Management System", kind: "framework",
+      note: "The international standard for governing AI. Relevant where AI is built into products or used in development." },
+    caf: { short: "NCSC CAF v4.0", full: "NCSC Cyber Assessment Framework (CAF) v4.0", kind: "framework",
+      note: "The National Cyber Security Centre's outcome-based framework for operators of essential functions and the public sector; suppliers meet it through A4.",
+      overlays: ["dtac"] },
+    cra: { short: "EU CRA", full: "EU Cyber Resilience Act (CRA)", kind: "regulation",
+      note: "Regulation (EU) 2024/2847. Obligation-based law for manufacturers of products with digital elements placed on the EU market." },
+    sscop: { short: "Software Security Code", full: "UK Software Security Code of Practice (SSCoP)", kind: "code",
+      note: "The UK government's voluntary code for software vendors: 14 principles in 4 themes, increasingly expected in public-sector procurement." },
+  };
+
+  const OVERLAYS = {
+    dtac: { short: "DTAC", full: "NHS Digital Technology Assessment Criteria (DTAC)", parent: "caf",
+      note: "The NHS assessment criteria for digital health technology. Suggested when the sector is public sector or health.",
+      suggestWhen: { dimension: "sector", minPoints: 3 } },
+  };
+
+  const FRAMEWORK_ORDER = ["iso27001", "iso42001", "caf"];
+  const REGULATION_ORDER = ["cra", "sscop"];
+
+  /* Dated facts the obligation flags rely on. Review annually. */
+  const KEY_DATES = {
+    cra_in_force: "2024-12-10",
+    cra_reporting_applies: "2026-09-11",
+    cra_full_application: "2027-12-11",
+    iso27001_transition_deadline: "2025-10-31",
+    sscop_published: "2025-05",
+  };
+
+  /* ---------------------------------------------------------------------
+     Meterian products (for the "How Meterian helps" lines and glossary)
+  --------------------------------------------------------------------- */
+  const PRODUCTS = {
+    boss: { name: "BOSS", what: "Software Composition Analysis for codebases: open-source dependencies, direct and transitive, across 18+ languages. Reads manifests only; never your source code." },
+    bossc: { name: "BOSSC", what: "Container image scanner: operating-system and application-layer vulnerabilities." },
+    isaac: { name: "ISAAC", what: "Infrastructure-as-code scanner for Terraform, CloudFormation, Kubernetes/Helm and ARM/Bicep, with secrets detection." },
+    sasha: { name: "SASHA", what: "Static application security testing with SARIF output." },
+    heidi: { name: "HEIDI", what: "Free IDE plugin and MCP server: package-risk checks where developers and AI coding assistants add dependencies." },
+    kiwi: { name: "KIWI", what: "Vulnerability data feed refreshed at least every four hours from 20+ sources; available on-premises." },
+    sentinel: { name: "Sentinel", what: "Alerts on newly published vulnerabilities in components you have already shipped, without a rescan." },
+    sbom: { name: "SBOM & Policies", what: "Automatic Software Bill of Materials, licence inventory and policy enforcement." },
+    reports: { name: "Reports & API", what: "Per-scan reports in HTML, JSON, TXT and PDF; dashboard history; full REST API." },
+    feed: { name: "JSON feed", what: "Machine-readable vulnerability and component data that feeds partner compliance and customer-communication tools." },
+  };
+
+  const DEPLOYMENT_NOTES = [
+    "On-premises and air-gapped deployment of the scanners is available for public sector and CNI environments with no outbound data flow.",
+    "Single sign-on (Entra ID, Google Workspace, SAML) and multi-factor authentication are available on enterprise plans.",
+  ];
+
+  /* ---------------------------------------------------------------------
+     DIMENSIONS - 6 Exposure + 6 Controls
+     Each option: { points, label }. mapping: per framework / overlay.
+     implication (exposure) or remediation (controls): framework-neutral text
+     for the report. meterian: the "How Meterian helps" line (controls only).
+  --------------------------------------------------------------------- */
+  const DIMENSIONS = [
+    /* ============================ EXPOSURE ============================ */
+    {
+      id: "reg_scope", code: "E1", group: "exposure", weight: 3,
+      name: "Regulatory scope of what you ship",
+      question: "Which best describes the software your organisation produces or supplies?",
+      measures: "Whether the software you produce falls into a regulated product category and whether you are a supplier to others.",
+      why: "The single biggest determinant of legal exposure: it decides whether the CRA applies at all (fines of up to €15m or 2.5% of worldwide turnover), whether the Code of Practice is being asked of you by public-sector buyers, and whether you are the manufacturer who must produce an SBOM and report.",
+      whyWeight: "Weight 3 because it sets the legal duties every other answer is measured against.",
+      options: [
+        { points: 0, label: "Software is used internally only; nothing is supplied to customers or other organisations" },
+        { points: 1, label: "We run customer-facing services (SaaS, portals, apps) but do not distribute software products" },
+        { points: 2, label: "We supply software or digital products to customers in the UK, or build software for public bodies under contract" },
+        { points: 3, label: "We place products with digital elements on the EU market, or supply into the NHS, central or local government, or critical national infrastructure" },
+      ],
+      mapping: {
+        iso27001: "cl. 4.2 interested parties and their requirements; A.5.31 legal, statutory, regulatory and contractual requirements",
+        iso42001: "cl. 4.1–4.2 context and role in the AI value chain; A.10.4 customers",
+        caf: "A1 Governance (scope of essential functions); A4.a supply chain (supplier flow-down)",
+        dtac: "Applicability: any supplier of digital health technology to the NHS",
+        cra: "Art. 2–3 scope (products with digital elements); Art. 13 manufacturer obligations; Annex III/IV product classes",
+        sscop: "Scope: applies to software vendors; 4.1 information on support period",
+      },
+      implication: "Scope sets your legal duties. At the top level you are the manufacturer under the CRA and the vendor public-sector buyers hold to the Code of Practice. Confirm scope with counsel and list which products are in scope and from when.",
+      meterian: null,
+    },
+    {
+      id: "consequence", code: "E2", group: "exposure", weight: 3,
+      name: "Consequence of a supply-chain compromise",
+      question: "If a vulnerable component in your software were exploited, what is the worst realistic outcome?",
+      measures: "The worst realistic outcome if a vulnerable component in your software is exploited.",
+      why: "Impact is half of every risk equation and is what turns a CVE into a board matter. A single unpatched framework exposed 147 million records at Equifax; the 2025 JLR incident was modelled at £1.9bn of UK economic impact.",
+      whyWeight: "Weight 3 because the same gap is a different risk when patients, payments or essential services are on the other side of it.",
+      options: [
+        { points: 0, label: "Inconvenience; no customer, financial or regulatory impact" },
+        { points: 1, label: "Business disruption, rework or contained financial loss" },
+        { points: 2, label: "Personal data breach, service outage affecting customers, or a reportable incident" },
+        { points: 3, label: "Patient safety, an essential public service, payment or financial systems, or systemic harm to third parties" },
+      ],
+      mapping: {
+        iso27001: "cl. 6.1.2 risk assessment (consequences); A.5.12 classification of information",
+        iso42001: "cl. 6.1.2 AI risk assessment; A.5 AI system impact assessment",
+        caf: "A2.a risk management process; A2.b understanding threat (attacker-path analysis)",
+        dtac: "Section A clinical safety (DCB0129 / DCB0160)",
+        cra: "Art. 13(2) cybersecurity risk assessment; Annex I Part I(1) appropriate level of cybersecurity based on risk",
+        sscop: "1.1 established secure development framework, proportionate to risk",
+      },
+      implication: "Size every control to the worst realistic outcome: remediation SLAs, monitoring coverage and evidence retention should be proportionate to it, and the risk assessment should record it.",
+      meterian: null,
+    },
+    {
+      id: "oss_reliance", code: "E3", group: "exposure", weight: 2,
+      name: "Open-source dependency reliance",
+      question: "How much of the software you ship is built from open-source or third-party components, whether developed in-house or by suppliers?",
+      measures: "How much of what you ship you did not write.",
+      why: "Up to 90% of a modern application is open source, and each package brings others with it. Inherited code carries your liability, your licence obligations and your reporting duties.",
+      whyWeight: "Weight 2 because inherited code is the attack surface this whole category exists for, but a surface is not a failure.",
+      options: [
+        { points: 0, label: "Minimal third-party code; a few applications, mostly written in-house" },
+        { points: 1, label: "Open-source libraries in some applications, one main language or ecosystem" },
+        { points: 2, label: "Open-source across most applications in several ecosystems" },
+        { points: 3, label: "Open-source is the majority of what we ship across a large estate, including code developed by external suppliers" },
+      ],
+      mapping: {
+        iso27001: "A.5.21 managing information security in the ICT supply chain; A.8.30 outsourced development",
+        iso42001: "A.4.4 tooling resources; A.10.3 suppliers",
+        caf: "A4.a supply chain; A3.a asset management",
+        dtac: null,
+        cra: "Art. 13(5) due diligence on third-party and open-source components",
+        sscop: "1.2 understand the composition of the software and assess third-party component risk",
+      },
+      implication: "The code you did not write still carries your liability. Inventory it, monitor it and hold suppliers to the same standard as your own teams.",
+      meterian: null,
+    },
+    {
+      id: "ai_dev", code: "E4", group: "exposure", weight: 2,
+      name: "AI-assisted development",
+      question: "How are AI coding assistants or agents used in your software development?",
+      measures: "How much code and how many dependencies enter your software through AI coding assistants or agents, and with how much human review.",
+      why: "Assistants recommend packages from training data that may be years old; agents can install them, run commands and use credentials. An agent with those permissions is a privileged operator inside your environment, and privileged operators need controls.",
+      whyWeight: "Weight 2 because it amplifies open-source reliance rather than standing alone, and it is the bridge to ISO 42001.",
+      options: [
+        { points: 0, label: "No AI coding assistants in use" },
+        { points: 1, label: "Some developers use assistants; all changes go through human code review" },
+        { points: 2, label: "Widespread use; assistants routinely suggest and add packages, reviewed only at merge" },
+        { points: 3, label: "Coding agents can add packages, run commands or use credentials with limited human review" },
+      ],
+      mapping: {
+        iso27001: "A.8.25 secure development life cycle; A.8.28 secure coding; A.6.3 awareness and training",
+        iso42001: "A.9.2–A.9.3 processes and objectives for responsible use of AI systems; A.4.4 tooling resources; A.4.6 competence",
+        caf: "A4.b secure software development and support; A2.b understanding threat; B6 staff awareness",
+        dtac: null,
+        cra: "Annex I Part I(1)–(2) secure development; no known exploitable vulnerabilities at delivery",
+        sscop: "1.1, 1.2; 2.1 build-environment access (agents holding credentials)",
+      },
+      implication: "Treat AI coding assistants and agents as privileged operators: least privilege, no production credentials, package-risk checks at the point of suggestion, and human review before merge.",
+      meterian: null,
+    },
+    {
+      id: "deploy_surface", code: "E5", group: "exposure", weight: 2,
+      name: "Deployment surface",
+      question: "How is your software deployed and its infrastructure defined?",
+      measures: "Where and how software is deployed: containers, infrastructure-as-code, cloud, build-pipeline secrets.",
+      why: "Each layer is its own supply chain: container base images carry their own vulnerabilities, infrastructure code carries misconfiguration, and pipelines carry credentials. Secure-by-default obligations apply to all of them.",
+      whyWeight: "Weight 2 because a modern deployment surface multiplies the places a known weakness can sit, without being a failure in itself.",
+      options: [
+        { points: 0, label: "Traditional on-premises deployment; no containers or infrastructure-as-code" },
+        { points: 1, label: "Some cloud hosting; configuration managed manually" },
+        { points: 2, label: "Containers in production and some infrastructure-as-code (Terraform, Kubernetes/Helm, CloudFormation)" },
+        { points: 3, label: "Containerised, multi-cloud estate defined largely in code, with secrets and credentials handled in build pipelines" },
+      ],
+      mapping: {
+        iso27001: "A.8.9 configuration management; A.5.23 information security for use of cloud services; A.8.31 separation of environments",
+        iso42001: "A.4.5 system and computing resources; A.6.2.5 AI system deployment",
+        caf: "B4.a secure by design; B4.b secure configuration",
+        dtac: "Section C2 technical security (hosting, penetration testing)",
+        cra: "Annex I Part I(2)(a) secure by default configuration; (2)(i) limit attack surfaces",
+        sscop: "1.4 secure by design and default; 2.1–2.2 build environment; 3.1 secure distribution",
+      },
+      implication: "Scan base images and infrastructure code with the same discipline as application dependencies, detect secrets in pipelines, and enforce secure-by-default configuration.",
+      meterian: null,
+    },
+    {
+      id: "sector", code: "E6", group: "exposure", weight: 1, contextual: true,
+      name: "Sector and regulatory scrutiny",
+      question: "Which sector best describes your organisation or your principal customers?",
+      measures: "The regulatory attention your sector attracts. Also the segmentation field for follow-up.",
+      why: "Regulators and buyers set the evidence bar: a council, an NHS trust or a bank is asked for more, more often, than a general commercial business.",
+      whyWeight: "Weight 1 because sector amplifies everything else but is not itself a failure; it is excluded from the override for the same reason.",
+      options: [
+        { points: 0, label: "General commercial; no sector regulator", segment: "commercial" },
+        { points: 1, label: "Consumer or retail: GDPR and PCI DSS exposure", segment: "retail" },
+        { points: 2, label: "Financial services or fintech: FCA, DORA, PCI DSS", segment: "fintech" },
+        { points: 3, label: "Public sector, NHS or health tech, CNI or defence: CAF, DTAC and Code of Practice expectations", segment: "public_sector_health" },
+      ],
+      mapping: {
+        iso27001: "cl. 4.1 understanding the organisation and its context; A.5.31",
+        iso42001: "cl. 4.1 context; A.5.4 assessing impacts on individuals and society",
+        caf: "Applicability: NIS-regulated operators and public-sector CAF profiles",
+        dtac: "Health overlay trigger",
+        cra: "Annex III/IV important and critical product classes",
+        sscop: "Public-sector procurement expectation",
+      },
+      implication: "Align the frameworks you report against with what your procurement, audit and regulatory stakeholders actually ask for, and keep the evidence in the form they accept.",
+      meterian: null,
+    },
+
+    /* ============================ CONTROLS ============================ */
+    {
+      id: "inventory", code: "C1", group: "controls", weight: 3,
+      name: "Component inventory (SBOM)",
+      question: "Do you know what is in the software you ship?",
+      measures: "Whether a current, machine-readable inventory of third-party components exists, including container images and licence terms.",
+      why: "Inventory is the precondition for every other control, the CRA's explicit requirement from 11 December 2027, and what makes 24/72-hour reporting possible at all. Licence terms belong in it, which is where the open-source IP question is answered.",
+      whyWeight: "Weight 3 because nothing else can be monitored, fixed or evidenced for a component you do not know you have.",
+      options: [
+        { points: 0, label: "Machine-readable SBOM (CycloneDX or SPDX) with licence terms, generated automatically for every build, covering application dependencies and container images, kept current through the support period" },
+        { points: 1, label: "Automated SBOM for application code on most projects; not updated between releases" },
+        { points: 2, label: "Partial or manually maintained component lists for some applications" },
+        { points: 3, label: "No inventory of third-party components" },
+      ],
+      mapping: {
+        iso27001: "A.5.9 inventory of information and other associated assets; A.5.32 intellectual property rights",
+        iso42001: "A.4.2 resource documentation; A.6.2.7 AI system technical documentation",
+        caf: "A3.a asset management; A4.b secure software development and support",
+        dtac: null,
+        cra: "Annex I Part II(1) machine-readable SBOM covering at least top-level dependencies; Annex VII technical documentation",
+        sscop: "1.2 understand the composition of the software",
+      },
+      remediation: "Generate a machine-readable SBOM (CycloneDX or SPDX) automatically in the build for every application and container image, include licence data, store it with the release, and refresh it through the support period. Name an owner for the inventory.",
+      meterian: {
+        summary: "Meterian generates a Software Bill of Materials automatically from every scan, covering application dependencies (BOSS) and container images (BOSSC), with a licence inventory and policy checks, so the inventory keeps itself current with each build.",
+        products: ["boss", "bossc", "sbom"],
+        partial: false,
+        confirm: "SBOM generation and licence risk analysis are listed as add-on features; confirm plan wording with Meterian.",
+      },
+    },
+    {
+      id: "guardrails", code: "C2", group: "controls", weight: 2,
+      name: "Pre-production guardrails",
+      question: "Can a known-vulnerable component reach production unchallenged?",
+      measures: "Whether automated checks stop known-vulnerable or non-compliant components before release, and how early they run.",
+      why: "A gate in the pipeline is the cheapest place to stop a known weakness, and a check at the developer's desk is cheaper still, including when an AI assistant made the suggestion.",
+      whyWeight: "Weight 2 because gating only catches what is known at build time; monitoring and remediation matter more across the product's life.",
+      options: [
+        { points: 0, label: "Blocking gates in CI across code, container images and infrastructure code (including secrets), plus checks at the developer's desk before a dependency is added, including when an AI assistant suggests it" },
+        { points: 1, label: "CI pipeline blocks builds that breach a security threshold for dependencies" },
+        { points: 2, label: "Scans run but are advisory; findings do not stop a release" },
+        { points: 3, label: "No automated checks before release" },
+      ],
+      mapping: {
+        iso27001: "A.8.25 secure development life cycle; A.8.28 secure coding; A.8.29 security testing in development and acceptance; A.8.31 separation of environments; A.8.4 access to source code",
+        iso42001: "A.6.2.4 AI system verification and validation; A.9.2 responsible use of AI tooling",
+        caf: "B4.a secure by design; B4.c secure management; A4.b secure software development and support",
+        dtac: "Section C2: OWASP Top 10 and penetration-test expectations",
+        cra: "Annex I Part I(2) no known exploitable vulnerabilities at delivery; Part II(3) effective and regular tests and reviews",
+        sscop: "1.3 testing before distribution; 1.4 secure by design and default; 2.1 protect the build environment; 2.2 control and log changes to it",
+      },
+      remediation: "Set a security threshold in CI that blocks builds introducing known-vulnerable dependencies, extend the gate to container images and infrastructure code with secrets detection, and move the first check to the developer's desk, including dependencies suggested by AI assistants, so findings arrive before the pull request rather than after release.",
+      meterian: {
+        summary: "Meterian's CI integration blocks a build whose security, stability or licensing score falls below the threshold you set. ISAAC checks infrastructure and build-environment code and detects leaked secrets, SASHA adds static analysis, and HEIDI brings package-risk checks into the IDE and gives AI coding assistants live vulnerability context through Meterian's MCP server tools, free of charge.",
+        products: ["boss", "isaac", "sasha", "heidi"],
+        partial: false,
+        confirm: "Meterian's SSCoP mapping cites 'SSCoP MCP Server Tools' against principle 1.4; confirm the product name to use.",
+      },
+    },
+    {
+      id: "monitoring", code: "C3", group: "controls", weight: 3,
+      name: "Continuous monitoring after release",
+      question: "How do you learn that a component you already shipped has a new vulnerability?",
+      measures: "Whether shipped components are watched continuously for newly published vulnerabilities, including transitive and unmaintained ones.",
+      why: "Most exploited vulnerabilities are disclosed after the code shipped. A release-only scan is blind for the whole support period the CRA and the Code require you to cover.",
+      whyWeight: "Weight 3 because the window between disclosure and exploitation is measured in days, and a scan at the last release cannot see it.",
+      options: [
+        { points: 0, label: "Continuous monitoring with alerts when a new vulnerability is published, without rescanning, covering transitive dependencies and unmaintained components" },
+        { points: 1, label: "Automated rescan at each release only" },
+        { points: 2, label: "Periodic manual review or annual penetration test" },
+        { points: 3, label: "None; we would hear about it from a customer or the news" },
+      ],
+      mapping: {
+        iso27001: "A.8.8 management of technical vulnerabilities; A.8.16 monitoring activities; A.5.7 threat intelligence",
+        iso42001: "A.6.2.6 AI system operation and monitoring; A.6.2.8 recording of event logs",
+        caf: "B4.d vulnerability management; C1.a monitoring coverage; C2 threat hunting (partial)",
+        dtac: "Section C2 vulnerability management",
+        cra: "Art. 13 vulnerability handling through the support period; Annex I Part II(2)–(3)",
+        sscop: "3.3 proactive detection and management of vulnerabilities in software and third-party components",
+      },
+      remediation: "Subscribe shipped components to continuous vulnerability monitoring so a newly published CVE raises an alert without a rescan; cover transitive dependencies and flag unmaintained components; route alerts to a named owner with a triage SLA.",
+      meterian: {
+        summary: "Sentinel alerts you when a new vulnerability is published for a component you have already shipped, without a rescan, across application dependencies (BOSS) and container images (BOSSC). The Meterian vulnerability database is refreshed at least every four hours from 20+ sources and flags unmaintained components and transitive exposure.",
+        products: ["sentinel", "kiwi", "boss", "bossc"],
+        partial: false,
+        confirm: "Sentinel notifications are listed as an add-on feature; confirm plan wording with Meterian.",
+      },
+    },
+    {
+      id: "remediation", code: "C4", group: "controls", weight: 3,
+      name: "Remediation and exception management",
+      question: "When a vulnerability is found, how fast is it fixed, and what happens when it cannot be?",
+      measures: "Whether remediation runs to measured, severity-based deadlines and whether exceptions are governed.",
+      why: "Detection without remediation is a longer risk register. The CRA's \"without delay\" and fixed timelines turn SLAs into legal exposure; best effort will not satisfy a regulator or an auditor.",
+      whyWeight: "Weight 3 because the fix, not the finding, is what reduces risk, and the exception register is what makes an unfixable finding defensible.",
+      options: [
+        { points: 0, label: "Severity-based SLAs enforced and measured; automated upgrade or fix pull requests; exceptions documented with owner, rationale and expiry" },
+        { points: 1, label: "Defined SLAs by severity, tracked manually; exceptions informal" },
+        { points: 2, label: "Best-effort fixes with no targets" },
+        { points: 3, label: "No defined remediation process" },
+      ],
+      mapping: {
+        iso27001: "A.8.8 management of technical vulnerabilities; A.8.32 change management; cl. 6.1.3 risk treatment (exceptions as accepted risk)",
+        iso42001: "A.6.2.6 operation and monitoring; cl. 6.1.3 AI risk treatment",
+        caf: "B4.d vulnerability management; A2.a risk decisions",
+        dtac: "Section C2 patching timescales",
+        cra: "Annex I Part II(2) remediate without delay; (7) secure distribution of updates; (8) patches without delay and free of charge; Art. 13 security updates",
+        sscop: "3.5 timely security updates and notifications; 3.1 secure distribution",
+      },
+      remediation: "Define severity-based remediation SLAs and measure against them, automate upgrade pull requests where possible, and run a documented exception register with owner, rationale, compensating control and expiry date.",
+      meterian: {
+        summary: "Reports show the upgrade path for each affected component, autofix raises pull requests on supported platforms, exclusions are recorded against the scan, and HEIDI suggests safer versions while the dependency is being added.",
+        products: ["boss", "heidi"],
+        partial: false,
+        confirm: "Automatic remediation and pull requests are available on selected platforms and languages; confirm the supported list.",
+      },
+    },
+    {
+      id: "disclosure", code: "C5", group: "controls", weight: 2,
+      name: "Vulnerability disclosure and reporting readiness",
+      question: "Could you meet a 24/72-hour reporting clock, and is there a published way for researchers to reach you?",
+      measures: "Whether a coordinated vulnerability disclosure route exists and whether the incident process can identify affected products fast enough to report on time.",
+      why: "CRA Article 14 reporting has applied since 11 September 2026; both the CRA and the Code require a coordinated disclosure policy. The hard part of reporting is not the form but knowing which products contain the affected component.",
+      whyWeight: "Weight 2 because the clock is real and already running, but the control depends on the inventory and monitoring above it.",
+      options: [
+        { points: 0, label: "Published CVD policy and security.txt; rehearsed incident process meeting 24/72-hour timelines; affected products identifiable within hours from the inventory" },
+        { points: 1, label: "Published CVD policy and incident process, but identifying affected products takes days" },
+        { points: 2, label: "A security contact exists; no policy, no tested process" },
+        { points: 3, label: "No disclosure route and no incident reporting process" },
+      ],
+      mapping: {
+        iso27001: "A.5.24–A.5.28 incident management; A.5.5 contact with authorities; A.5.6 contact with special interest groups",
+        iso42001: "A.8.4 communication of incidents; A.8.3 external reporting",
+        caf: "D1.a–c response and recovery planning and capability; D2.a lessons learned",
+        dtac: "Section C2 incident reporting; Data Security and Protection Toolkit",
+        cra: "Art. 14 reporting (24-hour early warning, 72-hour notification, 14-day report; in force since 11 September 2026); Annex I Part II(4)–(6) disclosure of fixed vulnerabilities, CVD policy, contact address",
+        sscop: "3.2 vulnerability disclosure process; 3.4 report vulnerabilities to relevant parties; 4.3 inform customers of incidents",
+      },
+      remediation: "Publish a coordinated vulnerability disclosure policy and a security.txt file, rehearse the incident process against the 24-hour / 72-hour / 14-day CRA timeline, and prove you can identify every affected product from the inventory within hours.",
+      meterian: {
+        summary: "Meterian does not write your disclosure policy or file your reports, but it answers the question the clock depends on: which products contain the affected component. The SBOM and Sentinel alerts give that answer in hours rather than days, BOSS reports vulnerabilities to your team automatically, and the JSON feed carries the same data into the compliance or customer-communication tools that run your disclosure process.",
+        products: ["sbom", "sentinel", "feed"],
+        partial: true,
+        confirm: "Meterian's SSCoP mapping places principles 3.1, 3.2 and 4.1–4.3 with partner tools via the JSON feed; confirm how to name those partners, if at all.",
+      },
+    },
+    {
+      id: "evidence", code: "C6", group: "controls", weight: 2,
+      name: "Audit evidence and assurance reporting",
+      question: "Could you prove all of the above to an auditor, a regulator or a customer's procurement team this week?",
+      measures: "Whether control activity leaves retained, shareable evidence in a form auditors, customers and regulators accept.",
+      why: "CAF is assessed on evidence, ISO on documented information, the CRA on technical documentation retained for years. Security data is becoming legal evidence, financial assurance and proof of operational control.",
+      whyWeight: "Weight 2 because evidence does not reduce the likelihood of a breach, but its absence turns a managed risk into a failed audit or a lost tender.",
+      options: [
+        { points: 0, label: "Automated per-build reports (PDF, JSON, SARIF) retained and shareable; feed directly into the ISMS or CAF evidence base" },
+        { points: 1, label: "Periodic reports compiled manually for audits" },
+        { points: 2, label: "Ad-hoc screenshots and spreadsheets when asked" },
+        { points: 3, label: "Nothing documented" },
+      ],
+      mapping: {
+        iso27001: "cl. 7.5 documented information; cl. 9.1 monitoring, measurement, analysis and evaluation; cl. 9.2 internal audit; A.5.36 compliance with policies, rules and standards",
+        iso42001: "cl. 7.5, 9.1–9.2; A.6.2.7 technical documentation; A.8.2–A.8.3 information for interested parties",
+        caf: "Evidence-based self-assessment of every contributing outcome; A1.b roles and responsibilities; A2.a",
+        dtac: "Evidence-based self-assessment submission",
+        cra: "Annex VII technical documentation; Art. 13 documentation retention; conformity assessment (Art. 32) and EU declaration of conformity",
+        sscop: "4.1–4.2 information to customers; self-attestation against the Code",
+      },
+      remediation: "Retain per-build scan reports and SBOMs as records, export them in formats auditors and customers accept, and index them to the relevant ISO, CAF or CRA requirement so evidence is retrievable on request.",
+      meterian: {
+        summary: "Every scan produces a retained report in HTML, JSON, TXT or PDF (SARIF from SASHA), with dashboard history and full API access, and the JSON feed passes the same evidence into partner compliance tools, so audit evidence is a by-product of the pipeline rather than a quarterly exercise.",
+        products: ["reports", "sasha", "feed"],
+        partial: false,
+        confirm: "Some report formats are limited to enterprise plans; confirm wording.",
+      },
+    },
+  ];
+
+  /* ---------------------------------------------------------------------
+     OBLIGATION FLAGS - regulation-specific notes with dates, triggered by
+     Exposure answers and the user's selections, cross-referenced to the
+     Controls answers so the report can say "this applies to you; here is
+     where you stand".
+     when:     { dimension, minPoints }  - all conditions must hold
+     requires: any one of these selections (framework/regulation/overlay ids)
+     crossRef: Controls dimensions whose answer the flag reports against
+  --------------------------------------------------------------------- */
+  const OBLIGATION_FLAGS = [
+    {
+      id: "cra_reporting", requires: ["cra"], when: [{ dimension: "reg_scope", minPoints: 2 }],
+      title: "CRA Article 14 reporting is already in force",
+      text: "Since 11 September 2026, manufacturers must notify ENISA and the national CSIRT of actively exploited vulnerabilities and severe incidents: early warning within 24 hours, notification within 72 hours, final report within 14 days. Meeting the clock depends on knowing which products contain the affected component.",
+      date: KEY_DATES.cra_reporting_applies, crossRef: ["disclosure", "inventory"],
+    },
+    {
+      id: "cra_sbom", requires: ["cra"], when: [{ dimension: "reg_scope", minPoints: 2 }],
+      title: "Machine-readable SBOM mandatory from 11 December 2027",
+      text: "From full application of the CRA, products with digital elements must be accompanied by a machine-readable SBOM covering at least top-level dependencies (Annex I Part II(1)), held in the technical documentation and provided to market surveillance authorities on request. It must be maintained across the support period, not produced once.",
+      date: KEY_DATES.cra_full_application, crossRef: ["inventory"],
+    },
+    {
+      id: "cra_updates", requires: ["cra"], when: [{ dimension: "reg_scope", minPoints: 2 }],
+      title: "Vulnerabilities must be remediated without delay through the support period",
+      text: "The CRA requires manufacturers to address and remediate vulnerabilities without delay, distribute security updates securely and free of charge, and keep doing so for a support period of at least five years (Art. 13; Annex I Part II(2), (7), (8)).",
+      date: KEY_DATES.cra_full_application, crossRef: ["monitoring", "remediation"],
+    },
+    {
+      id: "cra_cvd", requires: ["cra"], when: [{ dimension: "reg_scope", minPoints: 2 }],
+      title: "A coordinated vulnerability disclosure policy is required",
+      text: "Annex I Part II(5)–(6) require a published coordinated vulnerability disclosure policy and a contact address for reporting vulnerabilities, and Part II(4) requires public disclosure of fixed vulnerabilities once an update is available.",
+      date: KEY_DATES.cra_full_application, crossRef: ["disclosure"],
+    },
+    {
+      id: "cra_docs", requires: ["cra"], when: [{ dimension: "reg_scope", minPoints: 2 }],
+      title: "Technical documentation must be retained and producible",
+      text: "Annex VII technical documentation, including the SBOM and the vulnerability-handling evidence, must be kept for ten years after the product is placed on the market or for the support period, whichever is longer, and produced to authorities on request. Fines reach €15m or 2.5% of worldwide turnover (Art. 64).",
+      date: KEY_DATES.cra_full_application, crossRef: ["evidence"],
+    },
+    {
+      id: "sscop_composition", requires: ["sscop"], when: [{ dimension: "reg_scope", minPoints: 2 }],
+      title: "Code of Practice: know the composition of your software",
+      text: "Principle 1.2 expects vendors to understand the composition of their software and assess the risks of third-party components; 3.3 expects proactive detection and management of vulnerabilities in those components; 3.5 expects timely security updates.",
+      date: null, crossRef: ["inventory", "monitoring", "remediation"],
+    },
+    {
+      id: "sscop_build_env", requires: ["sscop"], when: [{ dimension: "reg_scope", minPoints: 2 }, { dimension: "deploy_surface", minPoints: 2 }],
+      title: "Code of Practice Theme 2: protect the build environment",
+      text: "Principle 2.1 expects the build environment to be protected against unauthorised access and 2.2 expects changes to it to be controlled and logged. Infrastructure defined in code and credentials handled in pipelines bring both principles into scope.",
+      date: null, crossRef: ["guardrails"],
+    },
+    {
+      id: "sscop_cvd", requires: ["sscop"], when: [{ dimension: "reg_scope", minPoints: 2 }],
+      title: "Code of Practice: a published vulnerability disclosure process",
+      text: "Principle 3.2 expects an effective, published vulnerability disclosure process; 3.4 expects vulnerabilities to be reported to relevant parties; 4.3 expects customers to be told about security incidents that affect them in a timely manner.",
+      date: null, crossRef: ["disclosure"],
+    },
+    {
+      id: "sscop_procurement", requires: ["sscop"], when: [{ dimension: "sector", minPoints: 3 }],
+      title: "Public-sector buyers increasingly ask suppliers to attest against the Code",
+      text: "Central and local government and NHS procurement is adopting the Code as the baseline it asks software suppliers to self-attest against. Evidence that the controls operate, not just a policy, is what the attestation rests on.",
+      date: null, crossRef: ["evidence"],
+    },
+    {
+      id: "caf_a4b", requires: ["caf"], when: [{ dimension: "sector", minPoints: 2 }],
+      title: "CAF v4.0: secure software development and support (A4.b)",
+      text: "CAF v4.0 adds an explicit expectation that software is developed and supported securely, in line with SBOMs and attestable updates, treating provenance and update integrity as non-negotiable for essential functions.",
+      date: null, crossRef: ["inventory", "guardrails"],
+    },
+    {
+      id: "caf_c2", requires: ["caf"], when: [{ dimension: "sector", minPoints: 2 }],
+      title: "CAF v4.0: vulnerability management and threat hunting (B4.d, C2)",
+      text: "B4.d expects vulnerabilities in systems supporting essential functions to be identified and managed within defined timescales; the new C2 principle expects proactive, intelligence-led discovery whose findings are converted into detections.",
+      date: null, crossRef: ["monitoring", "remediation"],
+    },
+    {
+      id: "dtac_overlay", requires: ["dtac"], when: [{ dimension: "sector", minPoints: 3 }],
+      title: "DTAC: technical security and clinical safety evidence",
+      text: "Digital health technology supplied to the NHS is assessed against DTAC, including Section A clinical safety and Section C2 technical security (penetration testing, OWASP Top 10 protection, vulnerability and patch management). The evidence is submitted, not asserted.",
+      date: null, crossRef: ["guardrails", "monitoring", "evidence"],
+    },
+    {
+      id: "iso27001_2022", requires: ["iso27001"], when: [],
+      title: "ISO 27001:2022 controls now apply to every certificate",
+      text: "Certificates against the 2013 edition expired on 31 October 2025. The 2022 Annex A includes A.8.8 technical vulnerabilities, A.8.25 secure development life cycle, A.5.9 asset inventory and A.5.21 ICT supply chain, all of which an auditor will ask for operating evidence of.",
+      date: KEY_DATES.iso27001_transition_deadline, crossRef: ["inventory", "monitoring", "guardrails", "evidence"],
+    },
+    {
+      id: "iso42001_tooling", requires: ["iso42001"], when: [{ dimension: "ai_dev", minPoints: 1 }],
+      title: "ISO 42001: AI coding tools are AI systems in use",
+      text: "Under ISO 42001 the organisation's use of AI systems, including coding assistants and agents, falls within A.9 (responsible use) and A.4.4 (tooling resources). Document the tooling, its permitted scope and the guardrails around the dependencies it introduces.",
+      date: null, crossRef: ["guardrails"],
+    },
+  ];
+
+  /* ---------------------------------------------------------------------
+     Disclaimer and methodology text (shown in-tool and in the report)
+  --------------------------------------------------------------------- */
+  const DISCLAIMER = "This tool is a sales-enablement and educational asset provided by Meterian. It gives an indicative, self-reported view of software supply-chain risk and the framework obligations it may engage. It is not a legal, regulatory, audit or certification assessment, does not establish compliance with any framework or regulation, and should not be relied on as legal advice. Framework references are indicative summaries, not authoritative clause mappings.";
+
+  const METHODOLOGY = "Each answer carries 0 to 3 risk points. Section score = sum(points × weight) ÷ (3 × total weight) × 100, for Exposure and for Controls separately. The overall score is the average of the two section scores before rounding, so each half counts equally regardless of question count. Bands: 0–25 Low, 26–50 Medium, 51–75 High, 76–100 Critical. Override: any one Controls dimension at its weakest level floors the rating at High, and two or more force Critical; this applies only when Exposure is above the Low band. Framework and regulation selection changes the mapping, wording and obligation flags, not the score.";
+
+  return {
+    VERSION, UPDATED, MAX_POINTS, LEVELS, BANDS, OVERRIDE,
+    FRAMEWORKS, OVERLAYS, FRAMEWORK_ORDER, REGULATION_ORDER, KEY_DATES,
+    PRODUCTS, DEPLOYMENT_NOTES, DIMENSIONS, OBLIGATION_FLAGS,
+    DISCLAIMER, METHODOLOGY,
+  };
+})();
+
+if (typeof module !== "undefined" && module.exports) module.exports = RMLC_MODEL;
+if (typeof window !== "undefined") window.RMLC_MODEL = RMLC_MODEL;
+
+</script>
+<script>
+/* ============================================================================
+   Regulatory Mapping Lead Capture Tool — SCORING ENGINE
+   SoW PWMTR-001 · D1 v0.1 (18 Oct 2026)
+
+   Pure functions over the data model. No DOM, no state. Every number the
+   interface shows comes from computeResults(answers, selections).
+
+   answers:    { [dimensionId]: points (0-3) }   - unanswered keys absent
+   selections: { frameworks: [ids], regulations: [ids], overlays: [ids] }
+
+   Runs unchanged in the browser (window.RMLC_SCORING) and in Node.
+============================================================================ */
+
+const RMLC_SCORING = (function (MODEL) {
+  "use strict";
+
+  const M = MODEL;
+
+  /* ---------------------------------------------------------------------
+     Helpers
+  --------------------------------------------------------------------- */
+  function bandForScore(score) {
+    if (score == null) return null;
+    for (const b of M.BANDS) if (score >= b.min && score <= b.max) return b;
+    return score < 0 ? M.BANDS[0] : M.BANDS[M.BANDS.length - 1];
+  }
+  function bandById(id) { return M.BANDS.find((b) => b.id === id) || null; }
+  function rank(id) { const b = bandById(id); return b ? b.rank : -1; }
+  function dimsIn(group) { return M.DIMENSIONS.filter((d) => d.group === group); }
+  function dimById(id) { return M.DIMENSIONS.find((d) => d.id === id) || null; }
+  function levelFor(points) { return points == null ? null : M.LEVELS[points]; }
+  function optionFor(dim, points) { return dim.options.find((o) => o.points === points) || null; }
+
+  function allSelected(selections) {
+    const s = selections || {};
+    return [].concat(s.frameworks || [], s.regulations || [], s.overlays || []);
+  }
+
+  /* ---------------------------------------------------------------------
+     Section statistics
+     raw   = sum(points x weight) over answered dimensions
+     max   = 3 x sum(weight) over answered dimensions
+     ratio = raw / max  (0..1)
+     score = round(ratio x 100)
+  --------------------------------------------------------------------- */
+  function sectionStats(group, answers) {
+    const dims = dimsIn(group);
+    const answered = dims.filter((d) => answers[d.id] != null);
+    const raw = answered.reduce((s, d) => s + answers[d.id] * d.weight, 0);
+    const max = answered.reduce((s, d) => s + M.MAX_POINTS * d.weight, 0);
+    const ratio = max > 0 ? raw / max : null;
+    return {
+      group, raw, max, ratio,
+      score: ratio == null ? null : Math.round(ratio * 100),
+      count: answered.length, total: dims.length,
+      weightTotal: dims.reduce((s, d) => s + d.weight, 0),
+      maxPossible: dims.reduce((s, d) => s + M.MAX_POINTS * d.weight, 0),
+    };
+  }
+
+  /* ---------------------------------------------------------------------
+     Override
+  --------------------------------------------------------------------- */
+  function applyOverride(baseBandId, exposureScore, answers) {
+    const O = M.OVERRIDE;
+    const tripwires = dimsIn(O.group).filter((d) => answers[d.id] === O.tripwirePoints && d.contextual !== true);
+    let finalBandId = baseBandId;
+    let note = null;
+    let applied = false;
+    const eligible = baseBandId != null && exposureScore != null && exposureScore >= O.minExposureScore;
+
+    if (eligible && tripwires.length >= 2 && rank(baseBandId) < rank(O.multiForce)) {
+      finalBandId = O.multiForce; applied = true;
+      note = `${tripwires.length} controls are absent (${tripwires.map((d) => d.code).join(", ")}), so the rating is raised to ${bandById(O.multiForce).label}. The weighted average alone would read ${bandById(baseBandId).label}.`;
+    } else if (eligible && tripwires.length === 1 && rank(baseBandId) < rank(O.singleFloor)) {
+      finalBandId = O.singleFloor; applied = true;
+      note = `One foundational control is absent (${tripwires[0].code} ${tripwires[0].name}), so the rating is floored at ${bandById(O.singleFloor).label}. The weighted average alone would read ${bandById(baseBandId).label}.`;
+    } else if (!eligible && tripwires.length > 0 && baseBandId != null) {
+      note = `${tripwires.length === 1 ? "One control is" : tripwires.length + " controls are"} absent, but Exposure is in the Low band, so the override is not applied: record the gap rather than escalate it.`;
+    }
+    return { tripwires, applied, finalBandId, note, eligible };
+  }
+
+  /* ---------------------------------------------------------------------
+     Prioritised gaps: dimensions answered at 2 or 3 points, Controls first
+     (actionable), each list ordered by points x weight, then by weight.
+  --------------------------------------------------------------------- */
+  function prioritisedGaps(answers) {
+    const impact = (d) => answers[d.id] * d.weight;
+    const pick = (group) => dimsIn(group)
+      .filter((d) => answers[d.id] != null && answers[d.id] >= 2)
+      .sort((a, b) => impact(b) - impact(a) || b.weight - a.weight || a.code.localeCompare(b.code))
+      .map((d) => ({
+        id: d.id, code: d.code, group: d.group, name: d.name,
+        points: answers[d.id], weight: d.weight, impact: impact(d),
+        level: levelFor(answers[d.id]),
+        answer: optionFor(d, answers[d.id]) ? optionFor(d, answers[d.id]).label : null,
+        action: d.group === "controls" ? d.remediation : d.implication,
+        meterian: d.meterian || null,
+        mapping: d.mapping,
+      }));
+    return pick("controls").concat(pick("exposure"));
+  }
+
+  /* ---------------------------------------------------------------------
+     Obligation flags: triggered by Exposure answers + selections, reported
+     against the referenced Controls answers.
+  --------------------------------------------------------------------- */
+  function obligationFlags(answers, selections) {
+    const sel = allSelected(selections);
+    return M.OBLIGATION_FLAGS
+      .filter((f) => f.requires.some((r) => sel.includes(r)))
+      .filter((f) => f.when.every((c) => answers[c.dimension] != null && answers[c.dimension] >= c.minPoints))
+      .map((f) => ({
+        id: f.id, title: f.title, text: f.text, date: f.date,
+        status: f.crossRef.map((id) => {
+          const d = dimById(id);
+          const p = answers[id];
+          return { id, code: d.code, name: d.name, points: p == null ? null : p, level: levelFor(p), gap: p != null && p >= 2 };
+        }),
+        hasGap: f.crossRef.some((id) => answers[id] != null && answers[id] >= 2),
+      }));
+  }
+
+  /* ---------------------------------------------------------------------
+     Framework alignment rows for the report (selected frameworks only)
+  --------------------------------------------------------------------- */
+  function alignment(selections) {
+    const sel = allSelected(selections);
+    const ids = [].concat(M.FRAMEWORK_ORDER, M.REGULATION_ORDER, Object.keys(M.OVERLAYS)).filter((id) => sel.includes(id));
+    return ids.map((fid) => ({
+      id: fid,
+      label: (M.FRAMEWORKS[fid] || M.OVERLAYS[fid]).full,
+      rows: M.DIMENSIONS.map((d) => ({ code: d.code, name: d.name, group: d.group, clause: d.mapping[fid] || null })),
+    }));
+  }
+
+  /* ---------------------------------------------------------------------
+     Suggested overlays (e.g. DTAC when sector = public sector / health)
+  --------------------------------------------------------------------- */
+  function suggestedOverlays(answers, selections) {
+    const sel = allSelected(selections);
+    return Object.keys(M.OVERLAYS).filter((oid) => {
+      const o = M.OVERLAYS[oid];
+      if (sel.includes(oid)) return false;
+      if (!sel.includes(o.parent)) return false;
+      const w = o.suggestWhen;
+      return answers[w.dimension] != null && answers[w.dimension] >= w.minPoints;
+    });
+  }
+
+  /* ---------------------------------------------------------------------
+     Main entry point
+  --------------------------------------------------------------------- */
+  function computeResults(answers, selections) {
+    answers = answers || {};
+    selections = selections || {};
+    const exposure = sectionStats("exposure", answers);
+    const controls = sectionStats("controls", answers);
+    const complete = exposure.count === exposure.total && controls.count === controls.total;
+
+    // Overall = mean of the two section ratios, rounded once. Both sections
+    // must have at least one answer before an overall is shown.
+    let overall = null;
+    if (exposure.ratio != null && controls.ratio != null) {
+      overall = Math.round(((exposure.ratio + controls.ratio) / 2) * 100);
+    }
+    const baseBand = bandForScore(overall);
+    const override = applyOverride(baseBand ? baseBand.id : null, exposure.score, answers);
+    const finalBand = override.finalBandId ? bandById(override.finalBandId) : null;
+
+    return {
+      version: M.VERSION,
+      answers: { ...answers },
+      selections: {
+        frameworks: (selections.frameworks || []).slice(),
+        regulations: (selections.regulations || []).slice(),
+        overlays: (selections.overlays || []).slice(),
+      },
+      exposure, controls, overall, complete,
+      baseBand, finalBand,
+      override: {
+        applied: override.applied,
+        eligible: override.eligible,
+        note: override.note,
+        tripwires: override.tripwires.map((d) => ({ id: d.id, code: d.code, name: d.name })),
+      },
+      gaps: prioritisedGaps(answers),
+      flags: obligationFlags(answers, selections),
+      alignment: alignment(selections),
+      suggestedOverlays: suggestedOverlays(answers, selections),
+      sector: (function () {
+        const d = dimById("sector"); const o = optionFor(d, answers.sector);
+        return o ? { points: o.points, label: o.label, segment: o.segment } : null;
+      })(),
+    };
+  }
+
+  /* ---------------------------------------------------------------------
+     Hidden-field payload for the HubSpot form (D3). Flat strings only.
+  --------------------------------------------------------------------- */
+  function hubspotFields(results) {
+    const r = results;
+    return {
+      rmlc_version: r.version,
+      rmlc_score: r.overall == null ? "" : String(r.overall),
+      rmlc_band: r.finalBand ? r.finalBand.label : "",
+      rmlc_exposure_score: r.exposure.score == null ? "" : String(r.exposure.score),
+      rmlc_controls_score: r.controls.score == null ? "" : String(r.controls.score),
+      rmlc_override: r.override.applied ? "yes" : "no",
+      rmlc_sector: r.sector ? r.sector.segment : "",
+      rmlc_frameworks: r.selections.frameworks.join(";"),
+      rmlc_regulations: r.selections.regulations.join(";"),
+      rmlc_overlays: r.selections.overlays.join(";"),
+      rmlc_top_gaps: r.gaps.slice(0, 3).map((g) => g.code).join(";"),
+      rmlc_answers: M.DIMENSIONS.map((d) => `${d.code}=${r.answers[d.id] == null ? "-" : r.answers[d.id]}`).join(";"),
+    };
+  }
+
+  return {
+    computeResults, sectionStats, bandForScore, bandById, prioritisedGaps,
+    obligationFlags, alignment, suggestedOverlays, hubspotFields, levelFor, dimById,
+  };
+})(typeof RMLC_MODEL !== "undefined" ? RMLC_MODEL : require("./model.js"));
+
+if (typeof module !== "undefined" && module.exports) module.exports = RMLC_SCORING;
+if (typeof window !== "undefined") window.RMLC_SCORING = RMLC_SCORING;
+
+</script>
+
+<script type="text/babel" data-presets="react">
+const { useState, useMemo, useEffect, useRef } = React;
+const M = window.RMLC_MODEL;
+const S = window.RMLC_SCORING;
+
+const BAND_VAR = { low: "var(--low)", medium: "var(--medium)", high: "var(--high)", critical: "var(--critical)" };
+const STORAGE_KEY = "rmlc_v1";
+const EXPOSURE = M.DIMENSIONS.filter((d) => d.group === "exposure" && d.id !== "sector");
+const CONTROLS = M.DIMENSIONS.filter((d) => d.group === "controls");
+const SECTOR = M.DIMENSIONS.find((d) => d.id === "sector");
+const NAMES = Object.assign({}, M.FRAMEWORKS, M.OVERLAYS);
+const ALL_SEL = [].concat(M.FRAMEWORK_ORDER, M.REGULATION_ORDER, Object.keys(M.OVERLAYS));
+/* The Claude artifact preview cannot open the print dialog; the live site can. */
+const IN_PREVIEW = typeof window.claude !== "undefined";
+
+function load() { try { const raw = localStorage.getItem(STORAGE_KEY); if (raw) return JSON.parse(raw); } catch (e) {} return null; }
+function save(state) { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {} }
+const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+function fmtDate(iso) { if (!iso) return null; const [y, m, d] = iso.split("-").map(Number); return d ? `${d} ${MONTHS[m - 1]} ${y}` : `${MONTHS[m - 1]} ${y}`; }
+const TODAY = new Date().toISOString().slice(0, 10);
+const firstSentence = (s) => (s.match(/^[^.]+\./) || [s])[0];
+
+/* ----------------------------------------------------------- Components */
+function Band({ band, small }) {
+  if (!band) return <span className={"band" + (small ? " sm" : "")}>Not yet rated</span>;
+  return <span className={"band" + (small ? " sm" : "")} style={{ "--c": BAND_VAR[band.id] }}>{band.label}</span>;
+}
+
+function Chip({ id, on, onChange, children, sub }) {
+  return (
+    <label className="chip" htmlFor={id}>
+      <input className="sr-only" type="checkbox" id={id} checked={on} onChange={onChange} />
+      <span className="tick" aria-hidden="true"></span>
+      <span>{children}</span>{sub && <span className="sub">{sub}</span>}
+    </label>
+  );
+}
+
+function QuestionCard({ dim, value, onSelect }) {
+  return (
+    <section className="card" id={"q-" + dim.id}>
+      <fieldset>
+        <legend>
+          <div className="card-top">
+            <span className="code" aria-hidden="true">{dim.code}</span>
+            <h3><span className="sr-only">{dim.code} </span>{dim.name}</h3>
+            <span className="weight num">Weight {dim.weight} of 3</span>
+          </div>
+          <p className="q">{dim.question}</p>
+        </legend>
+        <div className="options">
+          {dim.options.map((o) => {
+            const lvl = M.LEVELS[o.points];
+            const id = `${dim.id}-${o.points}`;
+            return (
+              <label className="opt" key={o.points} htmlFor={id} style={{ "--c": BAND_VAR[lvl.id] }}>
+                <input className="sr-only" type="radio" name={dim.id} id={id} value={o.points} checked={value === o.points} onChange={() => onSelect(dim.id, o.points)} />
+                <span className="radio" aria-hidden="true"></span>
+                <span className="lvl">{lvl.label}<span className="sr-only"> risk:</span></span>
+                <span className="txt">{o.label}</span>
+              </label>
+            );
+          })}
+        </div>
+      </fieldset>
+      <div className="more">
+        <details className="why"><summary>Why this matters</summary>
+          <div className="body"><p>{dim.why}</p><p>{dim.whyWeight}</p></div>
+        </details>
+      </div>
+    </section>
+  );
+}
+
+function Scale({ score, band }) {
+  const pct = score == null ? null : Math.max(0, Math.min(100, score));
+  const label = "Risk scale from 0 to 100: Low 0 to 25, Medium 26 to 50, High 51 to 75, Critical 76 to 100." + (pct == null ? " No score yet." : ` Current score ${score}, ${band ? band.label : ""}.`);
+  return (
+    <div className="scale-wrap" role="img" aria-label={label}>
+      {pct != null && <div className="marker" style={{ left: pct + "%" }}></div>}
+      <div className="scale">{M.BANDS.map((b) => <span key={b.id} style={{ background: BAND_VAR[b.id] }}></span>)}</div>
+      <div className="scale-labels" aria-hidden="true">{M.BANDS.map((b) => <span key={b.id}>{b.label}</span>)}</div>
+    </div>
+  );
+}
+
+function SubScore({ label, stats }) {
+  const band = S.bandForScore(stats.score);
+  return (
+    <div className="sub">
+      <div className="row"><span className="muted">{label} <span className="num">({stats.count} of {stats.total} answered)</span></span><b className="num">{stats.score == null ? "–" : stats.score}</b></div>
+      <div className="bar" aria-hidden="true"><i style={{ width: (stats.score || 0) + "%", "--c": band ? BAND_VAR[band.id] : "var(--accent)" }}></i></div>
+    </div>
+  );
+}
+
+function Rail({ results, onProfile }) {
+  const r = results;
+  const answered = r.exposure.count + r.controls.count;
+  const total = r.exposure.total + r.controls.total;
+  const topGaps = r.gaps.slice(0, 3);
+  const status = r.overall == null ? `${answered} of ${total} answered. Answer one question in each section to start the score.` : `Score ${r.overall} of 100, ${r.finalBand.label}. ${answered} of ${total} answered.`;
+  return (
+    <aside className="rail" aria-labelledby="rail-h">
+      <div className="card">
+        <div>
+          <h2 className="eyebrow" id="rail-h">Your risk profile</h2>
+          <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">{status}</p>
+          <div className="score-top" aria-hidden="true">
+            <div className={"score num" + (r.overall == null ? " empty" : "")}>{r.overall == null ? "–" : r.overall}<small>/100</small></div>
+            <Band band={r.finalBand} />
+          </div>
+          {!r.complete && <div className="provisional" aria-hidden="true">{r.overall == null ? "Answer one question in each section to start the score" : "Provisional until all twelve questions are answered"}</div>}
+        </div>
+        <Scale score={r.overall} band={r.finalBand} />
+        <SubScore label="Exposure" stats={r.exposure} />
+        <SubScore label="Controls" stats={r.controls} />
+        <div className="progress">
+          <div className="row"><span>Progress</span><span className="num">{answered} of {total} answered</span></div>
+          <div className="bar" aria-hidden="true"><i style={{ width: (answered / total * 100) + "%", "--c": "var(--accent)" }}></i></div>
+        </div>
+        {r.override.note && <div className="note-box" style={{ "--c": r.override.applied ? "var(--critical)" : "var(--accent)" }}>{r.override.note}</div>}
+        {topGaps.length > 0 && (
+          <div className="gaps-mini">
+            <h3 className="eyebrow">Largest gaps so far</h3>
+            {topGaps.map((g) => (
+              <div className="g" key={g.id}><span className="code" aria-hidden="true">{g.code}</span><span className="n">{g.name}</span><Band band={S.bandById(g.level.id)} small /></div>
+            ))}
+          </div>
+        )}
+        {r.flags.length > 0 && <div className="small muted"><b className="num">{r.flags.length}</b> obligation{r.flags.length === 1 ? "" : "s"} engaged by your answers and selections</div>}
+        <button type="button" className="cta" disabled={!r.complete} onClick={onProfile}>{r.complete ? "See your full risk profile" : "Finish the questions to unlock"}</button>
+        <div className="cta-sub">Free · no scan of your systems · nothing leaves this page until you choose to share it</div>
+      </div>
+    </aside>
+  );
+}
+
+function Flag({ f, compact }) {
+  const live = f.date && f.date <= TODAY;
+  return (
+    <div className={compact ? "r-item" : "card flag"}>
+      <div className="t">
+        <h3>{f.title}</h3>
+        {f.date && <span className={"date" + (live ? " live" : "")}>{live ? "In force since " : "From "}{fmtDate(f.date)}</span>}
+      </div>
+      <p className="small muted">{f.text}</p>
+      <ul className="status" aria-label="Your controls this obligation depends on">
+        {f.status.map((s) => <li key={s.id} style={{ "--c": s.level ? BAND_VAR[s.level.id] : "var(--control)" }}>{s.code} {s.name}: {s.level ? s.level.label : "unanswered"}</li>)}
+      </ul>
+    </div>
+  );
+}
+
+function Gap({ g }) {
+  const isControl = g.group === "controls";
+  const dim = M.DIMENSIONS.find((d) => d.id === g.id);
+  return (
+    <div className="card gap" style={{ "--c": BAND_VAR[g.level.id] }}>
+      <div className="t"><span className="code" aria-hidden="true">{g.code}</span><h3><span className="sr-only">{g.code} </span>{g.name}</h3><Band band={S.bandById(g.level.id)} small /></div>
+      <p className="ans"><b>Your answer:</b> {g.answer}</p>
+      <div className="two">
+        <div className="box"><h4 className="eyebrow">{isControl ? "What to do" : "What this means"}</h4><p>{g.action}</p></div>
+        {g.meterian ? (
+          <div className="box mt">
+            <h4 className="eyebrow">How Meterian helps{g.meterian.partial ? " (in part)" : ""}</h4>
+            <p>{g.meterian.summary}</p>
+            <ul className="pills" aria-label="Meterian products">{g.meterian.products.map((p) => <li key={p}>{M.PRODUCTS[p].name}</li>)}</ul>
+          </div>
+        ) : (
+          <div className="box"><h4 className="eyebrow">Why it raises the score</h4><p>{dim.why}</p></div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function Profile({ results, orgName, selections, onReset, onReport }) {
+  const r = results;
+  const sel = ALL_SEL.filter((id) => [].concat(selections.frameworks, selections.regulations, selections.overlays).includes(id));
+  const controlGaps = r.gaps.filter((g) => g.group === "controls");
+  const exposureGaps = r.gaps.filter((g) => g.group === "exposure");
+  return (
+    <section className="profile" id="profile" aria-labelledby="profile-h">
+      <div className="profile-head" style={{ "--c": r.finalBand ? BAND_VAR[r.finalBand.id] : "var(--line)" }}>
+        <h2 id="profile-h" className="eyebrow">4 · Your risk profile{orgName ? ` for ${orgName}` : ""}</h2>
+        <div className="summary">
+          <div className="big num" aria-label={r.overall == null ? "No score yet" : `Overall score ${r.overall} out of 100`}>{r.overall == null ? "–" : r.overall}<small aria-hidden="true">/100</small></div>
+          <Band band={r.finalBand} />
+          <div className="small" style={{ color: "#DCE6F8" }}>Exposure <b className="num">{r.exposure.score ?? "–"}</b> · Controls <b className="num">{r.controls.score ?? "–"}</b>{!r.complete && " · provisional"}</div>
+        </div>
+        <p style={{ color: "#fff", fontWeight: 700, fontSize: 17 }}>{r.finalBand ? r.finalBand.guidance : "Answer the questions above to build your profile."}</p>
+        {r.override.applied && <p>{r.override.note}</p>}
+        {sel.length > 0 && <ul className="sel" aria-label="Assessed against">{sel.map((id) => <li key={id}>{NAMES[id].full}</li>)}</ul>}
+        <div className="actions">
+          <button type="button" className="btn" disabled={!r.complete} onClick={onReport}>{r.complete ? "Open your report" : "Finish the questions to open the report"}</button>
+          <button type="button" className="btn secondary" onClick={onReset}>Start again</button>
+        </div>
+      </div>
+
+      <div className="section">
+        <div className="section-head"><div className="row"><h3 style={{ fontSize: 21 }}>Obligations your answers engage</h3><span className="count num">{r.flags.length}</span></div>
+          <p className="blurb">Regulation-specific requirements triggered by what you ship and the sector you serve, shown against where your controls stand today.</p></div>
+        {r.flags.length ? <div className="flags">{r.flags.map((f) => <Flag key={f.id} f={f} />)}</div>
+          : <p className="empty">{sel.length ? "None triggered yet: obligations appear once the Exposure questions are answered." : "Choose a framework or regulation in Setup to see the obligations it brings."}</p>}
+      </div>
+
+      <div className="section">
+        <div className="section-head"><div className="row"><h3 style={{ fontSize: 21 }}>Prioritised gaps</h3><span className="count num">{controlGaps.length} control{controlGaps.length === 1 ? "" : "s"} · {exposureGaps.length} exposure</span></div>
+          <p className="blurb">Controls first because they are what you can change, ordered by how much each one moves the score. Then the exposure drivers to size them against.</p></div>
+        {r.gaps.length ? <div className="gaps">{r.gaps.map((g) => <Gap key={g.id} g={g} />)}</div>
+          : <p className="empty">{r.complete ? "No dimension is in the High or Critical range. Maintain current controls and reassess on any material change." : "Gaps appear as you answer."}</p>}
+      </div>
+
+      <details className="panel"><summary>How the score works</summary><div className="body"><p>{M.METHODOLOGY}</p></div></details>
+      <details className="panel"><summary>Disclaimer</summary><div className="body"><p>{M.DISCLAIMER}</p></div></details>
+    </section>
+  );
+}
+
+/* ----------------------------------------------------------- Report view */
+function Report({ results, orgName, selections, onBack }) {
+  const r = results;
+  const h = useRef(null);
+  useEffect(() => { if (h.current) h.current.focus(); window.scrollTo(0, 0); }, []);
+  const sel = ALL_SEL.filter((id) => [].concat(selections.frameworks, selections.regulations, selections.overlays).includes(id));
+  const controlGaps = r.gaps.filter((g) => g.group === "controls");
+  const exposureGaps = r.gaps.filter((g) => g.group === "exposure");
+  const publicSector = r.sector && r.sector.points === 3;
+  const products = [...new Set(controlGaps.flatMap((g) => (g.meterian ? g.meterian.products : [])))].map((p) => M.PRODUCTS[p].name);
+  const summary = r.finalBand ? (
+    `${orgName || "Your organisation"} scores ${r.overall} out of 100 (${r.finalBand.label}) on this self-assessment: Exposure ${r.exposure.score}, Controls ${r.controls.score}. ` +
+    (r.override.applied ? r.override.note + " " : "") +
+    (controlGaps.length ? `${controlGaps.length} of the six controls ${controlGaps.length === 1 ? "is" : "are"} at High or Critical, led by ${controlGaps.slice(0, 2).map((g) => g.name).join(" and ")}. ` : "All six controls are at Low or Medium. ") +
+    (r.flags.length ? `${r.flags.length} regulatory obligation${r.flags.length === 1 ? "" : "s"} ${r.flags.length === 1 ? "is" : "are"} engaged by what you ship and the sector you serve.` : "")
+  ) : "";
+  return (
+    <div className="report">
+      <div className="report-bar no-print">
+        <div className="l">
+          <button type="button" className="btn secondary" onClick={onBack}>← Back to the assessment</button>
+          {!IN_PREVIEW && <button type="button" className="btn" onClick={() => window.print()}>Save as PDF</button>}
+        </div>
+        <span className="print-help">{IN_PREVIEW ? "Save as PDF is available on the live site; this preview cannot open the print dialog." : "Choose “Save as PDF” as the destination in the print dialog."}</span>
+      </div>
+      <article className="report-paper" aria-labelledby="r-title">
+        <header className="r-head">
+          <div className="brand"><span className="wordmark" aria-hidden="true"><span className="m">meterian</span><span className="tag">know your apps' risks <b>now</b></span></span></div>
+          <h1 id="r-title" tabIndex="-1" ref={h} style={{ fontSize: 28 }}>Regulatory readiness report{orgName ? `: ${orgName}` : ""}</h1>
+          <div className="meta">
+            <span>Generated {fmtDate(TODAY)}</span>
+            <span>Self-reported assessment · indicative only</span>
+            {sel.length > 0 && <span>Assessed against: {sel.map((id) => NAMES[id].full).join("; ")}</span>}
+          </div>
+        </header>
+
+        <section className="r-section" aria-labelledby="r-s1">
+          <h2 id="r-s1">Executive summary</h2>
+          <div className="r-scores">
+            <div className="r-score"><span className="eyebrow">Overall</span><span className="v num">{r.overall ?? "–"}<small>/100</small></span><Band band={r.finalBand} small /></div>
+            <div className="r-score"><span className="eyebrow">Exposure</span><span className="v num">{r.exposure.score ?? "–"}<small>/100</small></span><span className="small muted">What is at stake</span></div>
+            <div className="r-score"><span className="eyebrow">Controls</span><span className="v num">{r.controls.score ?? "–"}<small>/100</small></span><span className="small muted">How well it is managed</span></div>
+          </div>
+          <p>{summary}</p>
+          {r.finalBand && <p><b>What this rating means:</b> {r.finalBand.guidance}</p>}
+        </section>
+
+        <section className="r-section" aria-labelledby="r-s2">
+          <h2 id="r-s2">Obligations engaged</h2>
+          {r.flags.length ? r.flags.map((f) => <Flag key={f.id} f={f} compact />) : <p className="muted">No regulation-specific obligations were triggered by your selections and answers.</p>}
+        </section>
+
+        <section className="r-section" aria-labelledby="r-s3">
+          <h2 id="r-s3">Prioritised gaps and how to close them</h2>
+          {r.gaps.length ? r.gaps.map((g) => (
+            <div className="r-item" key={g.id}>
+              <div className="t"><h3>{g.code} · {g.name}</h3><Band band={S.bandById(g.level.id)} small /></div>
+              <p><b>Your answer:</b> {g.answer}</p>
+              <p><b>{g.group === "controls" ? "What to do:" : "What this means:"}</b> {g.action}</p>
+              {g.meterian && <p className="mt"><b>How Meterian helps{g.meterian.partial ? " (in part)" : ""}:</b> {g.meterian.summary} <i>({g.meterian.products.map((p) => M.PRODUCTS[p].name).join(", ")})</i></p>}
+            </div>
+          )) : <p className="muted">No dimension is in the High or Critical range.</p>}
+        </section>
+
+        <section className="r-section" aria-labelledby="r-s4">
+          <h2 id="r-s4">Recommended next steps</h2>
+          <ol className="r-list">
+            {controlGaps.slice(0, 3).map((g) => <li key={g.id}><b>{g.name}.</b> {firstSentence(g.action)}</li>)}
+            {exposureGaps.slice(0, 1).map((g) => <li key={g.id}><b>{g.name}.</b> {firstSentence(g.action)}</li>)}
+            <li><b>Make the evidence routine.</b> Whatever you fix, retain the output of each build as a record so the next audit, tender or regulator request is a download rather than a project.</li>
+            <li><b>Talk to Meterian.</b> A 30-minute walkthrough of how {products.length ? products.join(", ") : "the Meterian platform"} would close the gaps above, with a scan of one of your own codebases if you want to see real findings. Meterian reads manifest files only and never your source code.{publicSector ? " On-premises and air-gapped deployment is available for public sector and CNI environments." : ""}</li>
+          </ol>
+        </section>
+
+        <section className="r-section" aria-labelledby="r-s5">
+          <h2 id="r-s5">Your answers</h2>
+          <ol className="r-list">
+            {M.DIMENSIONS.map((d) => { const p = r.answers[d.id]; const o = p == null ? null : d.options.find((x) => x.points === p); return <li key={d.id}><b>{d.code} {d.name}:</b> {o ? `${M.LEVELS[p].label} risk. ${o.label}` : "Not answered"}</li>; })}
+          </ol>
+        </section>
+
+        <footer className="r-foot">
+          <p><b>Methodology.</b> {M.METHODOLOGY}</p>
+          <p><b>Disclaimer.</b> {M.DISCLAIMER}</p>
+          <p>Model v{M.VERSION} · framework references current to {fmtDate(M.UPDATED)} · meterian.io</p>
+        </footer>
+      </article>
+    </div>
+  );
+}
+
+/* ----------------------------------------------------------- App */
+function App() {
+  const saved = useMemo(load, []);
+  const [answers, setAnswers] = useState((saved && saved.answers) || {});
+  const [selections, setSelections] = useState((saved && saved.selections) || { frameworks: [], regulations: [], overlays: [] });
+  const [orgName, setOrgName] = useState((saved && saved.orgName) || "");
+  const [view, setView] = useState("assessment");
+  const results = useMemo(() => S.computeResults(answers, selections), [answers, selections]);
+
+  useEffect(() => { save({ answers, selections, orgName }); }, [answers, selections, orgName]);
+
+  const select = (id, pts) => setAnswers((a) => ({ ...a, [id]: pts }));
+  const toggle = (group, id) => setSelections((s) => {
+    const list = s[group].includes(id) ? s[group].filter((x) => x !== id) : s[group].concat(id);
+    const next = { ...s, [group]: list };
+    if (group === "frameworks" && !list.includes("caf")) next.overlays = s.overlays.filter((o) => M.OVERLAYS[o].parent !== "caf");
+    return next;
+  });
+  const reset = () => { setAnswers({}); setSelections({ frameworks: [], regulations: [], overlays: [] }); setOrgName(""); try { localStorage.removeItem(STORAGE_KEY); } catch (e) {} setView("assessment"); window.scrollTo({ top: 0, behavior: "smooth" }); const el = document.getElementById("org"); if (el) el.focus(); };
+  const goProfile = () => { const el = document.getElementById("profile-h"); if (el) { el.scrollIntoView({ behavior: "smooth", block: "start" }); el.setAttribute("tabindex", "-1"); el.focus({ preventScroll: true }); } };
+  const openReport = () => setView("report");
+  const backFromReport = () => { setView("assessment"); setTimeout(goProfile, 0); };
+
+  const cafOn = selections.frameworks.includes("caf");
+  const suggestDtac = results.suggestedOverlays.includes("dtac");
+
+  if (view === "report") {
+    return (
+      <div className="wrap" lang="en-GB">
+        <main id="main"><Report results={results} orgName={orgName} selections={selections} onBack={backFromReport} /></main>
+      </div>
+    );
+  }
+
+  return (
+    <div className="wrap" lang="en-GB">
+      <header className="brand">
+        <a className="wordmark" href="https://www.meterian.io" target="_blank" rel="noopener" aria-label="Meterian website (opens in a new tab)">
+          <span className="m" aria-hidden="true">meterian</span>
+          <span className="tag" aria-hidden="true">know your apps' risks <b>now</b></span>
+        </a>
+        <span className="badge-free">Free self-assessment · about 6 minutes</span>
+      </header>
+
+      <div className="hero">
+        <p className="eyebrow">Regulatory readiness check</p>
+        <h1>Is your software supply chain ready for the regulators?</h1>
+        <p className="lead">Twelve plain-English questions. Six minutes. No scanners, no access to your systems and no engineer in the room. See your software supply-chain risk at a glance, the obligations you face under ISO/IEC 27001, ISO/IEC 42001, the NCSC Cyber Assessment Framework (CAF) v4.0, the EU Cyber Resilience Act (CRA) and the UK Software Security Code of Practice, and a prioritised plan for what to fix first. Built for the people accountable for security and compliance, not just the people who write the code.</p>
+        <ol className="steps" aria-label="How it works">
+          <li className="step"><i aria-hidden="true">1</i> Choose your frameworks and regulations</li>
+          <li className="step"><i aria-hidden="true">2</i> Rate your exposure</li>
+          <li className="step"><i aria-hidden="true">3</i> Rate your controls</li>
+          <li className="step"><i aria-hidden="true">4</i> Read your profile and save the report</li>
+        </ol>
+      </div>
+
+      <div className="grid">
+        <main id="main" className="col">
+          {/* ---------------- Setup ---------------- */}
+          <div className="section" id="setup">
+            <div className="section-head"><div className="row"><h2>1 · Choose your frameworks and regulations</h2><span className="count">Changes the mapping, never the score</span></div>
+              <p className="blurb">Pick what you are assessed against. The report flags the obligations each selection brings and shows where your controls stand against them.</p></div>
+            <div className="card setup-grid">
+              <div className="field">
+                <label htmlFor="org">Organisation name (optional, shown on your report)</label>
+                <input id="org" type="text" value={orgName} onChange={(e) => setOrgName(e.target.value)} placeholder="e.g. Riverside NHS Foundation Trust" autoComplete="organization" />
+              </div>
+              <fieldset className="field">
+                <legend>Target framework (choose one or more)</legend>
+                <div className="chips">
+                  {M.FRAMEWORK_ORDER.map((id) => <Chip key={id} id={"fw-" + id} on={selections.frameworks.includes(id)} onChange={() => toggle("frameworks", id)}>{M.FRAMEWORKS[id].full}</Chip>)}
+                  {cafOn && <Chip id="ov-dtac" on={selections.overlays.includes("dtac")} onChange={() => toggle("overlays", "dtac")} sub="overlay on CAF">+ {M.OVERLAYS.dtac.full}</Chip>}
+                </div>
+                {cafOn && <p className="note">{M.OVERLAYS.dtac.note.replace(" Suggested when the sector is public sector or health.", "")} Add it if you supply digital health technology into the NHS.</p>}
+              </fieldset>
+              <fieldset className="field">
+                <legend>Regulation or code of practice (choose one or more)</legend>
+                <div className="chips">
+                  {M.REGULATION_ORDER.map((id) => <Chip key={id} id={"reg-" + id} on={selections.regulations.includes(id)} onChange={() => toggle("regulations", id)}>{M.FRAMEWORKS[id].full}</Chip>)}
+                </div>
+                <p className="note">The Software Security Code of Practice is voluntary guidance that public-sector buyers increasingly ask suppliers to attest against; the Cyber Resilience Act is law for products placed on the EU market.</p>
+              </fieldset>
+              {suggestDtac && (
+                <div className="nudge" role="status"><span>You serve the public sector or health. If you supply digital health technology into the NHS, the DTAC overlay adds its technical security and clinical safety expectations to your report.</span>
+                  <button type="button" className="btn" onClick={() => toggle("overlays", "dtac")}>Add DTAC</button></div>
+              )}
+            </div>
+            <QuestionCard dim={SECTOR} value={answers[SECTOR.id]} onSelect={select} />
+          </div>
+
+          {/* ---------------- Exposure ---------------- */}
+          <div className="section" id="exposure">
+            <div className="section-head"><div className="row"><h2>2 · Rate your exposure</h2><span className="count num">{results.exposure.count} of {results.exposure.total} answered · half the score</span></div>
+              <p className="blurb">What is at stake. The risk you cannot engineer away: what you ship, who it affects, how much of it you did not write, how it is built and where it runs.</p></div>
+            {EXPOSURE.map((d) => <QuestionCard key={d.id} dim={d} value={answers[d.id]} onSelect={select} />)}
+          </div>
+
+          {/* ---------------- Controls ---------------- */}
+          <div className="section" id="controls">
+            <div className="section-head"><div className="row"><h2>3 · Rate your controls</h2><span className="count num">{results.controls.count} of {results.controls.total} answered · half the score</span></div>
+              <p className="blurb">How well it is managed, in the order a software lifecycle runs: know what you ship, gate it, watch it, fix it, disclose it, prove it. Weaker control scores as higher risk.</p></div>
+            {CONTROLS.map((d) => <QuestionCard key={d.id} dim={d} value={answers[d.id]} onSelect={select} />)}
+          </div>
+
+          {/* ---------------- Profile ---------------- */}
+          <Profile results={results} orgName={orgName} selections={selections} onReset={reset} onReport={openReport} />
+        </main>
+
+        <Rail results={results} onProfile={goProfile} />
+      </div>
+
+      <footer>
+        <p>{M.DISCLAIMER}</p>
+        <p>Frameworks referenced: {ALL_SEL.map((id) => NAMES[id].full).join("; ")}.</p>
+        <p>Model v{M.VERSION} · framework references current to {fmtDate(M.UPDATED)} · Your answers stay in this browser until you choose to share them. This page is designed to meet WCAG 2.2 AA; if anything is hard to use, tell Meterian at support@meterian.io.</p>
+      </footer>
+
+      <div className="minibar no-print" aria-label="Risk profile shortcut">
+        <div><div className="eyebrow">Risk profile</div><div className="s num">{results.overall == null ? "–" : results.overall}<small>/100 · {results.finalBand ? results.finalBand.label : "not rated"}</small></div></div>
+        <button type="button" className="btn secondary" onClick={goProfile}>{results.complete ? "View profile" : `${results.exposure.count + results.controls.count} of 12 answered`}</button>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>

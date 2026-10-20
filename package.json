@@ -1,0 +1,12 @@
+{
+  "name": "meterian-regulatory-mapping-tool",
+  "version": "0.2.0",
+  "private": true,
+  "description": "Regulatory Mapping Lead Capture Tool for Meterian (SoW PWMTR-001) — data model and scoring engine",
+  "scripts": {
+    "test": "node --test test/",
+    "examples": "node examples/worked-cases.js",
+    "build": "node build.js"
+  },
+  "engines": { "node": ">=18" }
+}
